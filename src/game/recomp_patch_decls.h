@@ -51,10 +51,6 @@ void recomp_harness_tick(uint8_t* rdram, recomp_context* ctx);
 void recomp_take_seed(uint8_t* rdram, recomp_context* ctx);
 void recomp_note_dropped_frame(uint8_t* rdram, recomp_context* ctx);
 
-#ifdef __cplusplus
-}
-#endif
-
 // THE GAME'S OWN sinf AND cosf, as a patch sees them. The main recompilation renames the game's
 // sinf and cosf to sinf_recomp and cosf_recomp (their names clash with the C library's), but the
 // patch recompilation does not apply the rename: a patch that calls the game's sinf is emitted
@@ -111,6 +107,11 @@ void recomp_room_pieces_begin(uint8_t* rdram, recomp_context* ctx);
 void recomp_room_piece_add(uint8_t* rdram, recomp_context* ctx);
 void recomp_room_pieces_present(uint8_t* rdram, recomp_context* ctx);
 void recomp_room_piece_state(uint8_t* rdram, recomp_context* ctx);
+// The ones above in C's linkage too, as recomp_api.cpp defines them: the web build's recompiler declares every
+// function a patch calls in the patches' own funcs.h, inside extern "C", and register_patches.cpp includes both.
+#ifdef __cplusplus
+}
+#endif
 
 // never means the C library. (Phase 39's matrix library patches were the first to take a sine
 // inside a patch.)

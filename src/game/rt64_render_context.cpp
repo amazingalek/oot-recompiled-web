@@ -583,7 +583,13 @@ oot::renderer::RT64Context::RT64Context(uint8_t* rdram,
     static unsigned char dummy_rom_header[0x40]{};
 
     RT64::Application::Core appCore{};
+#ifdef __EMSCRIPTEN__
+    // RT64 draws on the page's canvas, the one SDL's window is.
+    (void)window_handle;
+    appCore.window = "#canvas";
+#else
     appCore.window = window_handle.window;
+#endif
     appCore.checkInterrupts = dummy_check_interrupts;
 
     appCore.HEADER = dummy_rom_header;
@@ -718,7 +724,11 @@ oot::renderer::RT64Context::RT64Context(uint8_t* rdram,
     }
 #endif
 
+#ifdef __EMSCRIPTEN__
+    setup_result = map_setup_result(app->setup(0));
+#else
     setup_result = map_setup_result(app->setup(window_handle.thread_id));
+#endif
     chosen_api = map_graphics_api(app->chosenGraphicsAPI);
 
     if (setup_result != ultramodern::renderer::SetupResult::Success) {

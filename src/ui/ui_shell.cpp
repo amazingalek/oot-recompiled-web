@@ -1885,8 +1885,7 @@ namespace {
         }
 #ifdef __EMSCRIPTEN__
         // A page's folders are in the browser's storage, which no file browser can show.
-        std::fprintf(stderr, "[ui] %s is in the browser's storage
-", folder.string().c_str());
+        std::fprintf(stderr, "[ui] %s is in the browser's storage\n", folder.string().c_str());
 #else
         ShellExecuteW(nullptr, L"open", folder.wstring().c_str(), nullptr, nullptr, SW_SHOWNORMAL);
 #endif
