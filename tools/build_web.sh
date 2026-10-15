@@ -28,6 +28,8 @@ cmake -P lib/N64Recomp-browser/patches/apply.cmake lib
 UNCOMPRESSED=build/oot.ntsc-1.0.rom_uncompressed.z64
 if [ -n "$ROM" ]; then
     [ -f "$ROM" ] || fail "no file at $ROM."
+fi
+if [ -n "$ROM" ] && [ "$(sha1sum < "$ROM")" != "$(cat build/rom.sha1 2> /dev/null)" ]; then
     step "Decompressing your ROM into $UNCOMPRESSED"
     # The decomp's own decompressor, which checks the ROM's hash before and after.
     if [ ! -x build/venv/bin/python3 ]; then
@@ -39,6 +41,7 @@ if [ -n "$ROM" ]; then
     (cd lib/oot && "$ROOT/build/venv/bin/python3" tools/decompress_baserom.py ntsc-1.0)
     mv lib/oot/baseroms/ntsc-1.0/baserom-decompressed.z64 "$UNCOMPRESSED"
     rm -f lib/oot/baseroms/ntsc-1.0/baserom.z64
+    sha1sum < "$ROM" > build/rom.sha1
 fi
 [ -f "$UNCOMPRESSED" ] || fail "no ROM yet. Run this with the path to your Ocarina of Time (NTSC-U 1.0) ROM."
 
