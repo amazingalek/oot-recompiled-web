@@ -1,10 +1,13 @@
 #include "main/places.h"
 
+#ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #include <shlobj.h>
+#endif
 
 #include <cstdio>
+#include <cstdlib>
 #include <fstream>
 
 namespace oot::places {
@@ -31,6 +34,10 @@ namespace oot::places {
         std::string g_version;
 
         std::filesystem::path executable_directory() {
+#ifdef __EMSCRIPTEN__
+            // The page's files (assets/) are preloaded at the root of its file system.
+            return "/";
+#else
             wchar_t buffer[MAX_PATH * 4] = {};
             const DWORD length = GetModuleFileNameW(nullptr, buffer,
                                                     static_cast<DWORD>(sizeof(buffer) / sizeof(buffer[0])));
@@ -38,6 +45,7 @@ namespace oot::places {
                 return std::filesystem::current_path();
             }
             return std::filesystem::path(std::wstring(buffer, length)).parent_path();
+#endif
         }
 
         std::string read_line(const std::filesystem::path& file) {
@@ -59,6 +67,12 @@ namespace oot::places {
     // configuration from environment variables, and the shell answer is also the correct one on a
     // machine whose profile has been redirected.
     std::filesystem::path local_app_data() {
+#ifdef __EMSCRIPTEN__
+        // On a page, HOME (/home/web_user), which N64Recomp-browser's persistent_home.js keeps in the browser's
+        // IndexedDB, so the settings, the saves and the ROM the player picked outlive the page.
+        const char* home = std::getenv("HOME");
+        return home != nullptr ? std::filesystem::path(home) : std::filesystem::path("/home/web_user");
+#else
         PWSTR raw = nullptr;
         if (SHGetKnownFolderPath(FOLDERID_LocalAppData, 0, nullptr, &raw) != S_OK) {
             CoTaskMemFree(raw);
@@ -67,12 +81,22 @@ namespace oot::places {
         std::filesystem::path result(raw);
         CoTaskMemFree(raw);
         return result;
+#endif
     }
 
     void init() {
         const std::filesystem::path here = executable_directory();
 
         std::error_code ec;
+#ifdef __EMSCRIPTEN__
+        // A page is portable with its user's files apart: the program and its assets come with the page, and what the
+        // player keeps lives in the browser's storage.
+        g_mode = Mode::Portable;
+        g_program = here;
+        g_data = local_app_data() / DATA_FOLDER;
+        std::filesystem::create_directories(g_data, ec);
+        return;
+#endif
         if (std::filesystem::is_regular_file(here / MARKER, ec)) {
             g_mode = Mode::Installed;
             g_program = here;
@@ -204,6 +228,9 @@ namespace oot::places {
         // for the same reason local_app_data does it: this is correct on a machine whose Pictures
         // folder has been redirected to another drive or to a network share, and reading an
         // environment variable is forbidden here anyway.
+#ifdef __EMSCRIPTEN__
+        return g_data / "captures";
+#else
         PWSTR raw = nullptr;
         if (SHGetKnownFolderPath(FOLDERID_Pictures, 0, nullptr, &raw) != S_OK) {
             CoTaskMemFree(raw);
@@ -215,11 +242,15 @@ namespace oot::places {
         std::filesystem::path result(raw);
         CoTaskMemFree(raw);
         return result / "OoT-Recomp";
+#endif
     }
 
     std::filesystem::path videos() {
         // THE VIDEO RECORDER'S FILES (2026-10-09), for the reasons captures gives, in the folder a
         // video belongs in: the person's own Videos folder, as the shell answers it.
+#ifdef __EMSCRIPTEN__
+        return captures();
+#else
         PWSTR raw = nullptr;
         if (SHGetKnownFolderPath(FOLDERID_Videos, 0, nullptr, &raw) != S_OK) {
             CoTaskMemFree(raw);
@@ -228,6 +259,7 @@ namespace oot::places {
         std::filesystem::path result(raw);
         CoTaskMemFree(raw);
         return result / "OoT-Recomp";
+#endif
     }
 
     std::string installed_version() {

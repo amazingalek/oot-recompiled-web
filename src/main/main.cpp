@@ -15,9 +15,11 @@
 #include <memory>
 #include <string>
 
+#ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #include <io.h>
+#endif
 
 #include <SDL.h>
 #include <SDL_syswm.h>
@@ -130,6 +132,8 @@ int main(int argc, char** argv) {
     // So: stderr reopens the log (or the null device when the folder refuses a file), stdout
     // reopens the null device, and its descriptor is then made a duplicate of stderr's, which
     // shares the file position, so the two streams' lines land in the order they were printed.
+    // On a page both streams are the browser's console already.
+#ifdef _WIN32
     {
         const HANDLE err = GetStdHandle(STD_ERROR_HANDLE);
         const HANDLE out = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -150,6 +154,7 @@ int main(int argc, char** argv) {
             }
         }
     }
+#endif
 
     // Unbuffered, deliberately. Everything printed before the window comes up is boot diagnostics,
     // and the case that matters is the one where the program dies before it would have flushed: a
@@ -182,6 +187,7 @@ int main(int argc, char** argv) {
     // them, and this refreshes them on every run, so a shortcut somebody deleted comes back and
     // the listed version never names a build that has since been replaced. A no-op when portable,
     // which installs nothing and so registers nothing.
+#ifdef _WIN32
     {
         wchar_t self[MAX_PATH * 4] = {};
         const DWORD length = GetModuleFileNameW(nullptr, self,
@@ -190,6 +196,7 @@ int main(int argc, char** argv) {
             oot::install::register_for(std::filesystem::path(std::wstring(self, length)));
         }
     }
+#endif
 
     // --crash-test <kind>: one ending made to happen here, before anything else, so a check can
     // prove its report reaches the log from the earliest moment (tools/harness/dblclick.ps1).
@@ -243,6 +250,11 @@ int main(int argc, char** argv) {
     }
 
     // RT64 wants the native handle and the thread that owns the window, not the SDL wrapper.
+    ultramodern::renderer::WindowHandle window_handle{};
+#ifdef __EMSCRIPTEN__
+    // The page's canvas, which RT64 takes as SDL's window.
+    window_handle = window;
+#else
     SDL_SysWMinfo wmInfo{};
     SDL_VERSION(&wmInfo.version);
     if (!SDL_GetWindowWMInfo(window, &wmInfo)) {
@@ -252,13 +264,14 @@ int main(int argc, char** argv) {
         return 1;
     }
 
-    ultramodern::renderer::WindowHandle window_handle{};
     window_handle.window = wmInfo.info.win.window;
     window_handle.thread_id = GetCurrentThreadId();
+#endif
 
     // The window's icon: the mark, from the executable's own resource (src/main/app.rc), at the
     // two sizes the title bar and the taskbar use. SDL registers its window class with the
     // stock application icon, so the mark has to be set on the window itself.
+#ifdef _WIN32
     {
         HMODULE self = GetModuleHandleW(nullptr);
         HICON big = static_cast<HICON>(LoadImageW(self, MAKEINTRESOURCEW(1), IMAGE_ICON,
@@ -275,6 +288,7 @@ int main(int argc, char** argv) {
             std::fprintf(stderr, "The window icon could not be loaded from the executable.\n");
         }
     }
+#endif
 
     // rdram is the emulated memory the game will live in. Recompiled code addresses THROUGH it
     // rather than using host pointers, which is what keeps a bug in thirty year old game code from

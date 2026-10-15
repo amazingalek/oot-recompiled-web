@@ -16,11 +16,19 @@
 #include <string>
 #include <filesystem>
 
+#ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
+#endif
 
 #include <SDL.h>
 #include <SDL_syswm.h>
+
+#ifdef __EMSCRIPTEN__
+// On a page the sound plays on the browser's audio thread (N64Recomp-browser's frontend/audio_output.h): SDL2's port
+// plays it from the page's thread, which WebGPU keeps busy.
+#include "audio_output.h"
+#endif
 
 #include "ultramodern/ultramodern.hpp"
 #include "ultramodern/ultra64.h"
@@ -67,6 +75,12 @@ namespace {
     SDL_Window* g_window = nullptr;
     SDL_AudioDeviceID g_audio_device = 0;
     std::atomic<uint32_t> g_sample_rate{ 32000 };
+#ifdef __EMSCRIPTEN__
+    // The page's output runs at the browser's rate (48 kHz, usually) in floats, so an SDL audio stream converts the
+    // game's 16-bit frames at its own rate to that. g_audio_device stays 0 there: g_web_stream says the output is open.
+    SDL_AudioStream* g_web_stream = nullptr;
+    uint32_t g_web_rate = 0;
+#endif
     // The window's client size, kept by the thread that pumps its messages so the game thread
     // can read it without touching the window (post-parity phase 43, the wide transitions).
     // --virtual-controller <script>: the device layer attaches a virtual pad and drives it from
@@ -139,9 +153,15 @@ namespace {
     }
 
     void queue_samples(int16_t* audio_data, size_t sample_count) {
+#ifdef __EMSCRIPTEN__
+        if (g_web_stream == nullptr) {
+            return;
+        }
+#else
         if (g_audio_device == 0) {
             return;
         }
+#endif
 
         // sample_count is a count of int16 VALUES, not of stereo frames. The runtime computes it as
         // `byte_count / sizeof(int16_t)` in ultramodern/src/audio.cpp, so the byte count is simply
@@ -196,15 +216,33 @@ namespace {
             }
         }
 
+#ifdef __EMSCRIPTEN__
+        SDL_AudioStreamPut(g_web_stream, audio_data, static_cast<int>(sample_count * sizeof(int16_t)));
+        float converted[4096];
+        int got;
+        while ((got = SDL_AudioStreamGet(g_web_stream, converted, sizeof(converted))) > 0) {
+            n64recomp_browser::audio::queue(converted, static_cast<size_t>(got) / (sizeof(float) * 2));
+        }
+#else
         SDL_QueueAudio(g_audio_device, audio_data, static_cast<Uint32>(sample_count * sizeof(int16_t)));
+#endif
     }
 
     size_t get_frames_remaining() {
+#ifdef __EMSCRIPTEN__
+        if (g_web_stream == nullptr) {
+            return 0;
+        }
+        // The page's frames, in the game's: what the audio thread has yet to play and what the stream still holds.
+        const size_t frames = static_cast<size_t>(uint64_t(n64recomp_browser::audio::queued_frames()) * g_sample_rate / g_web_rate) +
+            static_cast<size_t>(SDL_AudioStreamAvailable(g_web_stream)) / (sizeof(float) * 2) * g_sample_rate / g_web_rate;
+#else
         if (g_audio_device == 0) {
             return 0;
         }
         // Bytes to frames: two channels of int16 per frame.
         const size_t frames = SDL_GetQueuedAudioSize(g_audio_device) / (sizeof(int16_t) * 2);
+#endif
         oot::probe::note_queue_depth(frames);
 
         // UNDER-REPORT BY ONE RETRACE, so the game keeps that much more ahead of the device.
@@ -225,6 +263,21 @@ namespace {
     }
 
     void set_frequency(uint32_t freq) {
+#ifdef __EMSCRIPTEN__
+        if (g_web_rate == 0) {
+            g_web_rate = n64recomp_browser::audio::open(2);
+        }
+        if (g_web_stream != nullptr) {
+            SDL_FreeAudioStream(g_web_stream);
+        }
+        g_web_stream = SDL_NewAudioStream(AUDIO_S16SYS, 2, static_cast<int>(freq), AUDIO_F32SYS, 2, static_cast<int>(g_web_rate));
+        if (g_web_stream == nullptr) {
+            std::fprintf(stderr, "[audio] could not convert %u Hz to the page's %u Hz: %s\n", freq, g_web_rate, SDL_GetError());
+            return;
+        }
+        g_sample_rate = freq;
+        return;
+#endif
         // The game changes sample rate at load boundaries. Reopen the device rather than resample.
         if (g_audio_device != 0) {
             SDL_CloseAudioDevice(g_audio_device);
@@ -375,6 +428,10 @@ namespace {
     }
 
     ultramodern::renderer::WindowHandle create_window(void*) {
+#ifdef __EMSCRIPTEN__
+        // In a browser the window is the page's canvas, and RT64 takes SDL's window for it.
+        return ultramodern::renderer::WindowHandle{ g_window };
+#else
         SDL_SysWMinfo wmInfo{};
         SDL_VERSION(&wmInfo.version);
         SDL_GetWindowWMInfo(g_window, &wmInfo);
@@ -383,6 +440,7 @@ namespace {
         handle.window = wmInfo.info.win.window;
         handle.thread_id = GetCurrentThreadId();
         return handle;
+#endif
     }
 
     // Keys the interface owns. F1, F2 and F3 open its screens; everything else here only does
