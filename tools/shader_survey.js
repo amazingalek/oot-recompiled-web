@@ -77,9 +77,15 @@
         w16(NEXT_CUTSCENE, NO_CUTSCENE);
       }
     })();
-    // The title (or the logo before it) until the file select.
+    // The title (or the logo before it) until the file select. Said every 10 s, so a run that never gets there says
+    // where it was.
+    let said = Date.now();
     while (r32(GAME_MODE) !== 2) {
       if (Date.now() > end) { watching = false; return false; }
+      if (Date.now() - said > 10000) {
+        console.log(`shader_survey: game mode ${r32(GAME_MODE)}, RDRAM at heap offset 0x${base.toString(16)}`);
+        said = Date.now();
+      }
       await press('START');
       await sleep(1500);
     }
