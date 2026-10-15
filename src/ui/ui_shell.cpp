@@ -3993,12 +3993,14 @@ namespace {
     }
 
     // On a page the window is the canvas, the page's size, which the launcher and the game don't shape
-    // (launch.cpp), so the interface grows with its height past the desktop's 960x720 game window, as
-    // recompui's menus do on the other recomps' pages; below that it stays at one pixel a dp, as on the
-    // desktop. Every size in the style sheets is in dp.
+    // (launch.cpp), so the interface is scaled with its height, as recompui's menus are on the other
+    // recomps' pages: laid out on a canvas 720 dp high (the desktop's 960x720 game window) at every size,
+    // so each part sits at the same fraction of the height and a script's click at one size maps to
+    // another by the height (N64Recomp-browser's play_page.mjs). Every size in the style sheets is in dp.
+    // Not below 0.75, where the text would be too small to read.
     void scale_to_canvas() {
 #ifdef __EMSCRIPTEN__
-        g_context->SetDensityIndependentPixelRatio(std::max(1.0f, static_cast<float>(g_height) / 720.0f));
+        g_context->SetDensityIndependentPixelRatio(std::max(0.75f, static_cast<float>(g_height) / 720.0f));
 #endif
     }
 
