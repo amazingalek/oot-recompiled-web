@@ -94,10 +94,16 @@ Firefox 3840x2000  54.2   38.4   36    4.0 s        168          5.6 (58), 1.4 (
 No WebGPU errors and no exceptions in any run, the GPU 33-40% busy. Firefox's waits are the boot's section before the
 first frame, then the menus' after Start, Kokiri Forest's, the market's and the Forest Temple's as the game first draws
 there; between them it draws 55-60, and its median holds the waits. Chrome builds the list behind the game, all 455
-pipelines 45-60 s in, and waits for none; every Chrome run stopped presenting once for 5-8 s, 50-67 s after the page
-opened, whatever the game was doing then (the file select, a scene load), with the page's thread held and the sound
-playing on, and keys sent meanwhile can be lost. That is Chrome with the list building behind the game, not this game's
-own.
+pipelines 45-60 s in, and waits for none. In Chrome the first load of a scene (the file into Link's house, the first
+warp into the house) can hold the picture 3-8 s: one present's GPU work comes back seconds late (`?present-stats`: 3.3
+s), the page's own thread is free (one long task of 0.4 s in the run) and the sound plays on, but keys sent meanwhile
+can be lost. A later load of the same scene doesn't, and 100 s with no input (the title and the attract demo, the whole
+list building behind them) had no frame gap over 50 ms: it is Chrome's GPU process doing something in line the first
+time, not the list.
+
+From Pages (main 16285f5), cold, 3840x2000 (a stand-in for a laptop's integrated graphics), 25 s of the game running
+by itself after Start: Chrome 59.6 presents a second, Firefox 59.2 after its 4.9 s wait for the boot's 58; no WebGPU
+errors.
 
 Sound is short in the first seconds after the launcher and in Firefox's waits, nowhere else. Chrome with a window
 (`--headed`) on an earlier build of the same list: 59.2 presents a second.
