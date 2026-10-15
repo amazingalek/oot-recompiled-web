@@ -94,13 +94,13 @@ Firefox 3840x2000  54.2   38.4   36    4.0 s        168          5.6 (58), 1.4 (
 No WebGPU errors and no exceptions in any run, the GPU 33-40% busy. Firefox's waits are the boot's section before the
 first frame, then the menus' after Start, Kokiri Forest's, the market's and the Forest Temple's as the game first draws
 there; between them it draws 55-60, and its median holds the waits. Chrome builds the list behind the game, all 455
-pipelines 45-60 s in, and waits for none. In Chrome the file's load into Link's house held the picture 8 s (the
-longest gaps above): the plan's own survey waited for the file select's hand-over in a loop of messages to itself, ~10,000 tasks a second on the page's thread, which
-starved the tasks that carry the device thread's WebGPU work there (a CDP trace: 88,000 of them in a 3.4 s hold, the
-GPU process idle). It waits on a timer now. The same plan from Pages (main 16285f5) with it, a busy host and another
-page on the GPU: Chrome 56.4 presents a second at 1256x645 and 55.6 at 3840x2000 (the headless browser's frames at
-~56 a second), the longest gap 0.87-0.90 s (a pipeline built in line at the title), no shader waits; Firefox 59.0 and
-59.2, its waits as before.
+pipelines 45-60 s in, and waits for none. In Chrome the file's load into Link's house held the picture 8 s (the longest
+gaps above): the plan's own survey waited for the file select's hand-over in a loop of messages to itself, ~10,000 tasks
+a second on the page's thread, which starved the tasks that carry the device thread's WebGPU work there (a CDP trace:
+88,000 of them in a 3.4 s hold, the GPU process idle). It waits on a timer now. The same plan from Pages (main 16285f5)
+with it, a busy host and another page on the GPU: Chrome 56.4 presents a second at 1256x645 and 55.6 at 3840x2000 (the
+headless browser's frames at ~56 a second), the longest gap 0.87-0.90 s (a pipeline built in line at the title), no
+shader waits; Firefox 59.0 and 59.2, its waits as before.
 
 From Pages (main 16285f5), cold, 3840x2000 (a stand-in for a laptop's integrated graphics), 25 s of the game running
 by itself after Start: Chrome 59.6 presents a second, Firefox 59.2 after its 4.9 s wait for the boot's 58; no WebGPU
