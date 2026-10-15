@@ -53,8 +53,9 @@ and settings. N64Recomp-browser's `tools/publish_page.sh` publishes the build di
   game copies out of the framebuffer, and `z_play.c` flushes the task queue and filters that copy on the CPU at once
   (`PreRender_ApplyFilters`), as Majora's Mask does; a copy that lands a display list late (RT64's `renderToRAMLate`)
   would not be there yet.
-- The game runs at its own 20 frames a second (upstream's default frame rate, Original), which RT64 interpolates to the
-  display's rate.
+- A first visit starts with Resolution at Match the window (the canvas's size) and Frame rate at Match the display: the
+  game's 20 frames a second, RT64 interpolating between them up to the display's rate. The desktop build starts with
+  the console's picture, 320x240 at 20 (`machine_defaults` in `src/ui/ui_settings.cpp`).
 
 ## The shader list
 
