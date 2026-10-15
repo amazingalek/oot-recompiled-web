@@ -48,7 +48,9 @@ and settings. N64Recomp-browser's `tools/publish_page.sh` publishes the build di
 - The launcher asks nothing about updates or a copy of the ROM, and has no Quit or window buttons; the ROM row and
   Load ROM open the browser's file picker (N64Recomp-browser's `frontend/file_picker.h`).
 - Sound plays on the browser's audio thread (N64Recomp-browser's `frontend/audio_output.h`).
-- The page's window is the canvas, the page's size: the launcher and the game don't shape it.
+- The page's window is the canvas, the page's size: the launcher and the game don't shape it. The launcher scales with
+  the canvas's height (RmlUi's dp ratio, the height over 720, not below 0.75), so it fills a 4K canvas as it fills a
+  laptop's window.
 - RT64's render to RAM stays on, as on the desktop, with the exact copy: the pause menu's background is the frame the
   game copies out of the framebuffer, and `z_play.c` flushes the task queue and filters that copy on the CPU at once
   (`PreRender_ApplyFilters`), as Majora's Mask does; a copy that lands a display list late (RT64's `renderToRAMLate`)
@@ -75,4 +77,27 @@ through `Module._oot_web_warp` (`web/survey.cpp`, which asks for the warp the de
 
 ## Played
 
-MEASUREMENTS
+On 2026-10-15, a local build of main e51ed04 (N64Recomp-browser 1d0d24a), Chrome 155 headless and Firefox 158, an RTX
+2070, a busy host (34-45%), a cold profile each, by `tools/play_plan.json` (N64Recomp-browser's `tools/play_page.mjs`):
+the title, File 1, Link's house, Kokiri Forest, the pause menu, Hyrule Field, the market and the Forest Temple as an
+adult, about 155 s of play each:
+
+```
+                  presents/s   frame gaps        sound frames   waits for the shader list (s, shaders)
+                  median  p10  p99 ms  longest   short of ~6M
+Chrome 1256x645    59.2   48.5   21    8.0 s        536          none
+Firefox 1256x645   55.0   35.2   33    4.0 s      2,824          4.9 (58), 1.3 (26), 3.0 (65), 3.8 (57), 0.7 (12)
+Chrome 3840x2000   59.1   51.4   22    8.0 s      4,784          none
+Firefox 3840x2000  54.2   38.4   36    4.0 s        168          5.6 (58), 1.4 (26), 2.9 (65), 3.8 (57), 0.7 (12)
+```
+
+No WebGPU errors and no exceptions in any run, the GPU 33-40% busy. Firefox's waits are the boot's section before the
+first frame, then the menus' after Start, Kokiri Forest's, the market's and the Forest Temple's as the game first draws
+there; between them it draws 55-60, and its median holds the waits. Chrome builds the list behind the game, all 455
+pipelines 45-60 s in, and waits for none; every Chrome run stopped presenting once for 5-8 s, 50-67 s after the page
+opened, whatever the game was doing then (the file select, a scene load), with the page's thread held and the sound
+playing on, and keys sent meanwhile can be lost. That is Chrome with the list building behind the game, not this game's
+own.
+
+Sound is short in the first seconds after the launcher and in Firefox's waits, nowhere else. Chrome with a window
+(`--headed`) on an earlier build of the same list: 59.2 presents a second.
