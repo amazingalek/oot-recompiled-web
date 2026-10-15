@@ -13,3 +13,10 @@
 [submodule "lib/freetype-windows-binaries"]
 	path = lib/freetype-windows-binaries
 	url = https://github.com/ubawurinna/freetype-windows-binaries
+[submodule "lib/N64Recomp-browser"]
+	path = lib/N64Recomp-browser
+	url = https://github.com/amazingalek/N64Recomp-browser
+[submodule "lib/oot"]
+	path = lib/oot
+	url = https://github.com/zeldaret/oot
+	shallow = true
