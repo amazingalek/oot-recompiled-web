@@ -59,19 +59,15 @@
   const press = async (name, ms = 300) => { send('keydown', keys[name]); await sleep(ms); send('keyup', keys[name]); };
   window.state = () => ({ mode: r32(GAME_MODE), entrance: r32(ENTRANCE), age: r32(AGE) });
 
-  // Resolves at once, the page's thread free meanwhile: a timer waits at least 4 ms, a message to itself a few us.
-  const yieldNow = () => new Promise((resolve) => {
-    const channel = new MessageChannel();
-    channel.port1.onmessage = resolve;
-    channel.port2.postMessage(0);
-  });
-
   window.play = async (intro = false) => {
     const end = Date.now() + 120000;
     let watching = !intro;
     const watch = (async () => {
       while (watching && r32(GAME_MODE) !== 2) await sleep(50);
-      while (watching && r32(GAME_MODE) !== 0) await yieldNow();
+      // A timer, 4 ms at the shortest, against the game's 50 ms frames: a message to itself each turn, a few us, posted
+      // ~10,000 tasks a second to the page's thread, and in Chrome they starved the tasks that carry the device thread's
+      // WebGPU work to it, so the picture held 3-8 s as the file loaded.
+      while (watching && r32(GAME_MODE) !== 0) await sleep(0);
       if (watching) {
         w32(CUTSCENE, 0);
         w16(NEXT_CUTSCENE, NO_CUTSCENE);
