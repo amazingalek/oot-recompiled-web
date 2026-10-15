@@ -1,0 +1,1517 @@
+{
+ "page": "OoTRecompiled.html",
+ "header": [
+  "The RT64 shaders the web page builds: one shader description a line, other mode L and H, color combiner L and H,",
+  "flags, in hex. RT64 specializes each one's WGSL when the page is built. In Chrome it builds the whole list behind the",
+  "game from its first frame; in Firefox those above the first \"section\" line before the game starts, and a section when",
+  "a frame first asks for 4 of its shaders, the game waiting. So nothing draws with the ubershader, which integrated",
+  "graphics can't afford (N64Recomp-browser's README). A description in two sections is built with the first.",
+  "",
+  "Recorded by code, not by playing (the page's default settings): bash tools/record_shaders.sh (its header says how)",
+  "runs N64Recomp-browser's tools/record_shaders.mjs with tools/shader_plan.json, which loads the page fresh for each",
+  "section, and tools/shader_survey.js reaches each place by a warp (web/survey.cpp). Above the first section: the",
+  "launcher, the logos and the title screen waiting for Start. Then the menus: the file select, name entry for a new",
+  "file, Link's house and the pause menu's four pages; the opening cutscene of a new file; and a section a region, each",
+  "place in it entered and run about in for a few seconds, a child where a child goes and an adult in the temples and",
+  "on a second visit to the places that change as he grows (src/game/warp_table.ntsc-1.0.h names them). Not recorded:",
+  "night, most cutscenes, items used, enemies fought, the ending."
+ ],
+ "load": [
+  [
+   "wait",
+   5000
+  ]
+ ],
+ "setup": [
+  [
+   "rom",
+   628,
+   568
+  ],
+  [
+   "wait",
+   3000
+  ]
+ ],
+ "start": [
+  [
+   "click",
+   628,
+   568
+  ],
+  [
+   "wait",
+   20000
+  ]
+ ],
+ "sections": [
+  {
+   "name": "menus",
+   "steps": [
+    [
+     "evalFile",
+     "shader_survey.js"
+    ],
+    [
+     "eval",
+     "play()"
+    ],
+    [
+     "eval",
+     "walk(4000)"
+    ],
+    [
+     "eval",
+     "pause()"
+    ],
+    [
+     "shot",
+     "menus.png"
+    ]
+   ]
+  },
+  {
+   "name": "intro",
+   "steps": [
+    [
+     "evalFile",
+     "shader_survey.js"
+    ],
+    [
+     "keep",
+     false
+    ],
+    [
+     "eval",
+     "play(true)"
+    ],
+    [
+     "keep",
+     true
+    ],
+    [
+     "wait",
+     150000
+    ],
+    [
+     "shot",
+     "intro.png"
+    ]
+   ]
+  },
+  {
+   "name": "kokiri",
+   "steps": [
+    [
+     "evalFile",
+     "shader_survey.js"
+    ],
+    [
+     "keep",
+     false
+    ],
+    [
+     "eval",
+     "play()"
+    ],
+    [
+     "keep",
+     true
+    ],
+    [
+     "eval",
+     "warp(0x0EE, 1)"
+    ],
+    [
+     "eval",
+     "walk(3000)"
+    ],
+    [
+     "eval",
+     "warp(0x0BB, 1)"
+    ],
+    [
+     "eval",
+     "walk(3000)"
+    ],
+    [
+     "eval",
+     "warp(0x433, 1)"
+    ],
+    [
+     "eval",
+     "walk(3000)"
+    ],
+    [
+     "eval",
+     "warp(0x437, 1)"
+    ],
+    [
+     "eval",
+     "walk(3000)"
+    ],
+    [
+     "eval",
+     "warp(0x0C1, 1)"
+    ],
+    [
+     "eval",
+     "walk(3000)"
+    ],
+    [
+     "eval",
+     "warp(0x0C9, 1)"
+    ],
+    [
+     "eval",
+     "walk(3000)"
+    ],
+    [
+     "eval",
+     "warp(0x09C, 1)"
+    ],
+    [
+     "eval",
+     "walk(3000)"
+    ],
+    [
+     "eval",
+     "warp(0x0EE, 0)"
+    ],
+    [
+     "eval",
+     "walk(3000)"
+    ],
+    [
+     "shot",
+     "kokiri.png"
+    ]
+   ]
+  },
+  {
+   "name": "dekutree",
+   "steps": [
+    [
+     "evalFile",
+     "shader_survey.js"
+    ],
+    [
+     "keep",
+     false
+    ],
+    [
+     "eval",
+     "play()"
+    ],
+    [
+     "keep",
+     true
+    ],
+    [
+     "eval",
+     "warp(0x000, 1)"
+    ],
+    [
+     "eval",
+     "walk(3000)"
+    ],
+    [
+     "eval",
+     "warp(0x40F, 1)"
+    ],
+    [
+     "eval",
+     "walk(3000)"
+    ],
+    [
+     "shot",
+     "dekutree.png"
+    ]
+   ]
+  },
+  {
+   "name": "lostwoods",
+   "steps": [
+    [
+     "evalFile",
+     "shader_survey.js"
+    ],
+    [
+     "keep",
+     false
+    ],
+    [
+     "eval",
+     "play()"
+    ],
+    [
+     "keep",
+     true
+    ],
+    [
+     "eval",
+     "warp(0x11E, 1)"
+    ],
+    [
+     "eval",
+     "walk(3000)"
+    ],
+    [
+     "eval",
+     "warp(0x0FC, 1)"
+    ],
+    [
+     "eval",
+     "walk(3000)"
+    ],
+    [
+     "eval",
+     "warp(0x0FC, 0)"
+    ],
+    [
+     "eval",
+     "walk(3000)"
+    ],
+    [
+     "shot",
+     "lostwoods.png"
+    ]
+   ]
+  },
+  {
+   "name": "foresttemple",
+   "steps": [
+    [
+     "evalFile",
+     "shader_survey.js"
+    ],
+    [
+     "keep",
+     false
+    ],
+    [
+     "eval",
+     "play()"
+    ],
+    [
+     "keep",
+     true
+    ],
+    [
+     "eval",
+     "warp(0x169, 0)"
+    ],
+    [
+     "eval",
+     "walk(3000)"
+    ],
+    [
+     "eval",
+     "warp(0x00C, 0)"
+    ],
+    [
+     "eval",
+     "walk(3000)"
+    ],
+    [
+     "shot",
+     "foresttemple.png"
+    ]
+   ]
+  },
+  {
+   "name": "field",
+   "steps": [
+    [
+     "evalFile",
+     "shader_survey.js"
+    ],
+    [
+     "keep",
+     false
+    ],
+    [
+     "eval",
+     "play()"
+    ],
+    [
+     "keep",
+     true
+    ],
+    [
+     "eval",
+     "warp(0x0CD, 1)"
+    ],
+    [
+     "eval",
+     "walk(3000)"
+    ],
+    [
+     "eval",
+     "warp(0x157, 1)"
+    ],
+    [
+     "eval",
+     "walk(3000)"
+    ],
+    [
+     "eval",
+     "warp(0x04F, 1)"
+    ],
+    [
+     "eval",
+     "walk(3000)"
+    ],
+    [
+     "eval",
+     "warp(0x2F9, 1)"
+    ],
+    [
+     "eval",
+     "walk(3000)"
+    ],
+    [
+     "eval",
+     "warp(0x0CD, 0)"
+    ],
+    [
+     "eval",
+     "walk(3000)"
+    ],
+    [
+     "eval",
+     "warp(0x157, 0)"
+    ],
+    [
+     "eval",
+     "walk(3000)"
+    ],
+    [
+     "shot",
+     "field.png"
+    ]
+   ]
+  },
+  {
+   "name": "market",
+   "steps": [
+    [
+     "evalFile",
+     "shader_survey.js"
+    ],
+    [
+     "keep",
+     false
+    ],
+    [
+     "eval",
+     "play()"
+    ],
+    [
+     "keep",
+     true
+    ],
+    [
+     "eval",
+     "warp(0x033, 1)"
+    ],
+    [
+     "eval",
+     "walk(3000)"
+    ],
+    [
+     "eval",
+     "warp(0x0B1, 1)"
+    ],
+    [
+     "eval",
+     "walk(3000)"
+    ],
+    [
+     "eval",
+     "warp(0x0AD, 1)"
+    ],
+    [
+     "eval",
+     "walk(3000)"
+    ],
+    [
+     "eval",
+     "warp(0x43B, 1)"
+    ],
+    [
+     "eval",
+     "walk(3000)"
+    ],
+    [
+     "eval",
+     "warp(0x0B7, 1)"
+    ],
+    [
+     "eval",
+     "walk(3000)"
+    ],
+    [
+     "eval",
+     "warp(0x388, 1)"
+    ],
+    [
+     "eval",
+     "walk(3000)"
+    ],
+    [
+     "eval",
+     "warp(0x390, 1)"
+    ],
+    [
+     "eval",
+     "walk(3000)"
+    ],
+    [
+     "eval",
+     "warp(0x507, 1)"
+    ],
+    [
+     "eval",
+     "walk(3000)"
+    ],
+    [
+     "eval",
+     "warp(0x530, 1)"
+    ],
+    [
+     "eval",
+     "walk(3000)"
+    ],
+    [
+     "eval",
+     "warp(0x063, 1)"
+    ],
+    [
+     "eval",
+     "walk(3000)"
+    ],
+    [
+     "eval",
+     "warp(0x03B, 1)"
+    ],
+    [
+     "eval",
+     "walk(3000)"
+    ],
+    [
+     "eval",
+     "warp(0x398, 1)"
+    ],
+    [
+     "eval",
+     "walk(3000)"
+    ],
+    [
+     "eval",
+     "warp(0x07E, 1)"
+    ],
+    [
+     "eval",
+     "walk(3000)"
+    ],
+    [
+     "eval",
+     "warp(0x171, 1)"
+    ],
+    [
+     "eval",
+     "walk(3000)"
+    ],
+    [
+     "eval",
+     "warp(0x053, 1)"
+    ],
+    [
+     "eval",
+     "walk(3000)"
+    ],
+    [
+     "eval",
+     "warp(0x0B1, 0)"
+    ],
+    [
+     "eval",
+     "walk(3000)"
+    ],
+    [
+     "eval",
+     "warp(0x053, 0)"
+    ],
+    [
+     "eval",
+     "walk(3000)"
+    ],
+    [
+     "shot",
+     "market.png"
+    ]
+   ]
+  },
+  {
+   "name": "castle",
+   "steps": [
+    [
+     "evalFile",
+     "shader_survey.js"
+    ],
+    [
+     "keep",
+     false
+    ],
+    [
+     "eval",
+     "play()"
+    ],
+    [
+     "keep",
+     true
+    ],
+    [
+     "eval",
+     "warp(0x138, 1)"
+    ],
+    [
+     "eval",
+     "walk(3000)"
+    ],
+    [
+     "eval",
+     "warp(0x07A, 1)"
+    ],
+    [
+     "eval",
+     "walk(3000)"
+    ],
+    [
+     "eval",
+     "warp(0x400, 1)"
+    ],
+    [
+     "eval",
+     "walk(3000)"
+    ],
+    [
+     "eval",
+     "warp(0x138, 0)"
+    ],
+    [
+     "eval",
+     "walk(3000)"
+    ],
+    [
+     "shot",
+     "castle.png"
+    ]
+   ]
+  },
+  {
+   "name": "kakariko",
+   "steps": [
+    [
+     "evalFile",
+     "shader_survey.js"
+    ],
+    [
+     "keep",
+     false
+    ],
+    [
+     "eval",
+     "play()"
+    ],
+    [
+     "keep",
+     true
+    ],
+    [
+     "eval",
+     "warp(0x0DB, 1)"
+    ],
+    [
+     "eval",
+     "walk(3000)"
+    ],
+    [
+     "eval",
+     "warp(0x39C, 1)"
+    ],
+    [
+     "eval",
+     "walk(3000)"
+    ],
+    [
+     "eval",
+     "warp(0x2FD, 1)"
+    ],
+    [
+     "eval",
+     "walk(3000)"
+    ],
+    [
+     "eval",
+     "warp(0x550, 1)"
+    ],
+    [
+     "eval",
+     "walk(3000)"
+    ],
+    [
+     "eval",
+     "warp(0x384, 1)"
+    ],
+    [
+     "eval",
+     "walk(3000)"
+    ],
+    [
+     "eval",
+     "warp(0x072, 1)"
+    ],
+    [
+     "eval",
+     "walk(3000)"
+    ],
+    [
+     "eval",
+     "warp(0x44F, 1)"
+    ],
+    [
+     "eval",
+     "walk(3000)"
+    ],
+    [
+     "eval",
+     "warp(0x0E4, 1)"
+    ],
+    [
+     "eval",
+     "walk(3000)"
+    ],
+    [
+     "eval",
+     "warp(0x30D, 1)"
+    ],
+    [
+     "eval",
+     "walk(3000)"
+    ],
+    [
+     "eval",
+     "warp(0x02D, 1)"
+    ],
+    [
+     "eval",
+     "walk(3000)"
+    ],
+    [
+     "eval",
+     "warp(0x31C, 1)"
+    ],
+    [
+     "eval",
+     "walk(3000)"
+    ],
+    [
+     "eval",
+     "warp(0x04B, 1)"
+    ],
+    [
+     "eval",
+     "walk(3000)"
+    ],
+    [
+     "eval",
+     "warp(0x0DB, 0)"
+    ],
+    [
+     "eval",
+     "walk(3000)"
+    ],
+    [
+     "eval",
+     "warp(0x0E4, 0)"
+    ],
+    [
+     "eval",
+     "walk(3000)"
+    ],
+    [
+     "shot",
+     "kakariko.png"
+    ]
+   ]
+  },
+  {
+   "name": "well",
+   "steps": [
+    [
+     "evalFile",
+     "shader_survey.js"
+    ],
+    [
+     "keep",
+     false
+    ],
+    [
+     "eval",
+     "play()"
+    ],
+    [
+     "keep",
+     true
+    ],
+    [
+     "eval",
+     "warp(0x098, 1)"
+    ],
+    [
+     "eval",
+     "walk(3000)"
+    ],
+    [
+     "shot",
+     "well.png"
+    ]
+   ]
+  },
+  {
+   "name": "shadowtemple",
+   "steps": [
+    [
+     "evalFile",
+     "shader_survey.js"
+    ],
+    [
+     "keep",
+     false
+    ],
+    [
+     "eval",
+     "play()"
+    ],
+    [
+     "keep",
+     true
+    ],
+    [
+     "eval",
+     "warp(0x037, 0)"
+    ],
+    [
+     "eval",
+     "walk(3000)"
+    ],
+    [
+     "eval",
+     "warp(0x413, 0)"
+    ],
+    [
+     "eval",
+     "walk(3000)"
+    ],
+    [
+     "shot",
+     "shadowtemple.png"
+    ]
+   ]
+  },
+  {
+   "name": "mountain",
+   "steps": [
+    [
+     "evalFile",
+     "shader_survey.js"
+    ],
+    [
+     "keep",
+     false
+    ],
+    [
+     "eval",
+     "play()"
+    ],
+    [
+     "keep",
+     true
+    ],
+    [
+     "eval",
+     "warp(0x13D, 1)"
+    ],
+    [
+     "eval",
+     "walk(3000)"
+    ],
+    [
+     "eval",
+     "warp(0x14D, 1)"
+    ],
+    [
+     "eval",
+     "walk(3000)"
+    ],
+    [
+     "eval",
+     "warp(0x37C, 1)"
+    ],
+    [
+     "eval",
+     "walk(3000)"
+    ],
+    [
+     "eval",
+     "warp(0x147, 1)"
+    ],
+    [
+     "eval",
+     "walk(3000)"
+    ],
+    [
+     "eval",
+     "warp(0x13D, 0)"
+    ],
+    [
+     "eval",
+     "walk(3000)"
+    ],
+    [
+     "eval",
+     "warp(0x14D, 0)"
+    ],
+    [
+     "eval",
+     "walk(3000)"
+    ],
+    [
+     "shot",
+     "mountain.png"
+    ]
+   ]
+  },
+  {
+   "name": "dodongo",
+   "steps": [
+    [
+     "evalFile",
+     "shader_survey.js"
+    ],
+    [
+     "keep",
+     false
+    ],
+    [
+     "eval",
+     "play()"
+    ],
+    [
+     "keep",
+     true
+    ],
+    [
+     "eval",
+     "warp(0x004, 1)"
+    ],
+    [
+     "eval",
+     "walk(3000)"
+    ],
+    [
+     "eval",
+     "warp(0x40B, 1)"
+    ],
+    [
+     "eval",
+     "walk(3000)"
+    ],
+    [
+     "shot",
+     "dodongo.png"
+    ]
+   ]
+  },
+  {
+   "name": "firetemple",
+   "steps": [
+    [
+     "evalFile",
+     "shader_survey.js"
+    ],
+    [
+     "keep",
+     false
+    ],
+    [
+     "eval",
+     "play()"
+    ],
+    [
+     "keep",
+     true
+    ],
+    [
+     "eval",
+     "warp(0x165, 0)"
+    ],
+    [
+     "eval",
+     "walk(3000)"
+    ],
+    [
+     "eval",
+     "warp(0x305, 0)"
+    ],
+    [
+     "eval",
+     "walk(3000)"
+    ],
+    [
+     "shot",
+     "firetemple.png"
+    ]
+   ]
+  },
+  {
+   "name": "zora",
+   "steps": [
+    [
+     "evalFile",
+     "shader_survey.js"
+    ],
+    [
+     "keep",
+     false
+    ],
+    [
+     "eval",
+     "play()"
+    ],
+    [
+     "keep",
+     true
+    ],
+    [
+     "eval",
+     "warp(0x0EA, 1)"
+    ],
+    [
+     "eval",
+     "walk(3000)"
+    ],
+    [
+     "eval",
+     "warp(0x108, 1)"
+    ],
+    [
+     "eval",
+     "walk(3000)"
+    ],
+    [
+     "eval",
+     "warp(0x380, 1)"
+    ],
+    [
+     "eval",
+     "walk(3000)"
+    ],
+    [
+     "eval",
+     "warp(0x10E, 1)"
+    ],
+    [
+     "eval",
+     "walk(3000)"
+    ],
+    [
+     "eval",
+     "warp(0x108, 0)"
+    ],
+    [
+     "eval",
+     "walk(3000)"
+    ],
+    [
+     "eval",
+     "warp(0x10E, 0)"
+    ],
+    [
+     "eval",
+     "walk(3000)"
+    ],
+    [
+     "shot",
+     "zora.png"
+    ]
+   ]
+  },
+  {
+   "name": "jabujabu",
+   "steps": [
+    [
+     "evalFile",
+     "shader_survey.js"
+    ],
+    [
+     "keep",
+     false
+    ],
+    [
+     "eval",
+     "play()"
+    ],
+    [
+     "keep",
+     true
+    ],
+    [
+     "eval",
+     "warp(0x028, 1)"
+    ],
+    [
+     "eval",
+     "walk(3000)"
+    ],
+    [
+     "eval",
+     "warp(0x301, 1)"
+    ],
+    [
+     "eval",
+     "walk(3000)"
+    ],
+    [
+     "shot",
+     "jabujabu.png"
+    ]
+   ]
+  },
+  {
+   "name": "icecavern",
+   "steps": [
+    [
+     "evalFile",
+     "shader_survey.js"
+    ],
+    [
+     "keep",
+     false
+    ],
+    [
+     "eval",
+     "play()"
+    ],
+    [
+     "keep",
+     true
+    ],
+    [
+     "eval",
+     "warp(0x088, 0)"
+    ],
+    [
+     "eval",
+     "walk(3000)"
+    ],
+    [
+     "shot",
+     "icecavern.png"
+    ]
+   ]
+  },
+  {
+   "name": "lake",
+   "steps": [
+    [
+     "evalFile",
+     "shader_survey.js"
+    ],
+    [
+     "keep",
+     false
+    ],
+    [
+     "eval",
+     "play()"
+    ],
+    [
+     "keep",
+     true
+    ],
+    [
+     "eval",
+     "warp(0x102, 1)"
+    ],
+    [
+     "eval",
+     "walk(3000)"
+    ],
+    [
+     "eval",
+     "warp(0x043, 1)"
+    ],
+    [
+     "eval",
+     "walk(3000)"
+    ],
+    [
+     "eval",
+     "warp(0x45F, 1)"
+    ],
+    [
+     "eval",
+     "walk(3000)"
+    ],
+    [
+     "eval",
+     "warp(0x102, 0)"
+    ],
+    [
+     "eval",
+     "walk(3000)"
+    ],
+    [
+     "shot",
+     "lake.png"
+    ]
+   ]
+  },
+  {
+   "name": "watertemple",
+   "steps": [
+    [
+     "evalFile",
+     "shader_survey.js"
+    ],
+    [
+     "keep",
+     false
+    ],
+    [
+     "eval",
+     "play()"
+    ],
+    [
+     "keep",
+     true
+    ],
+    [
+     "eval",
+     "warp(0x010, 0)"
+    ],
+    [
+     "eval",
+     "walk(3000)"
+    ],
+    [
+     "eval",
+     "warp(0x417, 0)"
+    ],
+    [
+     "eval",
+     "walk(3000)"
+    ],
+    [
+     "shot",
+     "watertemple.png"
+    ]
+   ]
+  },
+  {
+   "name": "gerudo",
+   "steps": [
+    [
+     "evalFile",
+     "shader_survey.js"
+    ],
+    [
+     "keep",
+     false
+    ],
+    [
+     "eval",
+     "play()"
+    ],
+    [
+     "keep",
+     true
+    ],
+    [
+     "eval",
+     "warp(0x117, 1)"
+    ],
+    [
+     "eval",
+     "walk(3000)"
+    ],
+    [
+     "eval",
+     "warp(0x3A0, 1)"
+    ],
+    [
+     "eval",
+     "walk(3000)"
+    ],
+    [
+     "eval",
+     "warp(0x129, 1)"
+    ],
+    [
+     "eval",
+     "walk(3000)"
+    ],
+    [
+     "eval",
+     "warp(0x117, 0)"
+    ],
+    [
+     "eval",
+     "walk(3000)"
+    ],
+    [
+     "eval",
+     "warp(0x129, 0)"
+    ],
+    [
+     "eval",
+     "walk(3000)"
+    ],
+    [
+     "eval",
+     "warp(0x486, 0)"
+    ],
+    [
+     "eval",
+     "walk(3000)"
+    ],
+    [
+     "eval",
+     "warp(0x008, 0)"
+    ],
+    [
+     "eval",
+     "walk(3000)"
+    ],
+    [
+     "eval",
+     "warp(0x130, 0)"
+    ],
+    [
+     "eval",
+     "walk(3000)"
+    ],
+    [
+     "eval",
+     "warp(0x123, 0)"
+    ],
+    [
+     "eval",
+     "walk(3000)"
+    ],
+    [
+     "shot",
+     "gerudo.png"
+    ]
+   ]
+  },
+  {
+   "name": "spirittemple",
+   "steps": [
+    [
+     "evalFile",
+     "shader_survey.js"
+    ],
+    [
+     "keep",
+     false
+    ],
+    [
+     "eval",
+     "play()"
+    ],
+    [
+     "keep",
+     true
+    ],
+    [
+     "eval",
+     "warp(0x082, 1)"
+    ],
+    [
+     "eval",
+     "walk(3000)"
+    ],
+    [
+     "eval",
+     "warp(0x082, 0)"
+    ],
+    [
+     "eval",
+     "walk(3000)"
+    ],
+    [
+     "eval",
+     "warp(0x08D, 0)"
+    ],
+    [
+     "eval",
+     "walk(3000)"
+    ],
+    [
+     "shot",
+     "spirittemple.png"
+    ]
+   ]
+  },
+  {
+   "name": "ganon",
+   "steps": [
+    [
+     "evalFile",
+     "shader_survey.js"
+    ],
+    [
+     "keep",
+     false
+    ],
+    [
+     "eval",
+     "play()"
+    ],
+    [
+     "keep",
+     true
+    ],
+    [
+     "eval",
+     "warp(0x41B, 0)"
+    ],
+    [
+     "eval",
+     "walk(3000)"
+    ],
+    [
+     "eval",
+     "warp(0x467, 0)"
+    ],
+    [
+     "eval",
+     "walk(3000)"
+    ],
+    [
+     "eval",
+     "warp(0x56C, 0)"
+    ],
+    [
+     "eval",
+     "walk(3000)"
+    ],
+    [
+     "eval",
+     "warp(0x179, 0)"
+    ],
+    [
+     "eval",
+     "walk(3000)"
+    ],
+    [
+     "eval",
+     "warp(0x43F, 0)"
+    ],
+    [
+     "eval",
+     "walk(3000)"
+    ],
+    [
+     "eval",
+     "warp(0x41F, 0)"
+    ],
+    [
+     "eval",
+     "walk(3000)"
+    ],
+    [
+     "eval",
+     "warp(0x517, 0)"
+    ],
+    [
+     "eval",
+     "walk(3000)"
+    ],
+    [
+     "shot",
+     "ganon.png"
+    ]
+   ]
+  },
+  {
+   "name": "fountains",
+   "steps": [
+    [
+     "evalFile",
+     "shader_survey.js"
+    ],
+    [
+     "keep",
+     false
+    ],
+    [
+     "eval",
+     "play()"
+    ],
+    [
+     "keep",
+     true
+    ],
+    [
+     "eval",
+     "warp(0x03F, 1)"
+    ],
+    [
+     "eval",
+     "walk(3000)"
+    ],
+    [
+     "eval",
+     "warp(0x36D, 1)"
+    ],
+    [
+     "eval",
+     "walk(3000)"
+    ],
+    [
+     "eval",
+     "warp(0x315, 0)"
+    ],
+    [
+     "eval",
+     "walk(3000)"
+    ],
+    [
+     "eval",
+     "warp(0x371, 1)"
+    ],
+    [
+     "eval",
+     "walk(3000)"
+    ],
+    [
+     "eval",
+     "warp(0x06B, 0)"
+    ],
+    [
+     "eval",
+     "walk(3000)"
+    ],
+    [
+     "shot",
+     "fountains.png"
+    ]
+   ]
+  }
+ ]
+}

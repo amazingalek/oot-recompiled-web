@@ -1,0 +1,105 @@
+{
+ "page": "OoTRecompiled.html",
+ "load": [
+  [
+   "wait",
+   5000
+  ]
+ ],
+ "setup": [
+  [
+   "rom",
+   628,
+   568
+  ],
+  [
+   "wait",
+   3000
+  ]
+ ],
+ "start": [
+  [
+   "click",
+   628,
+   568
+  ],
+  [
+   "wait",
+   20000
+  ]
+ ],
+ "play": [
+  [
+   "evalFile",
+   "shader_survey.js"
+  ],
+  [
+   "shot",
+   "title.png"
+  ],
+  [
+   "eval",
+   "play()"
+  ],
+  [
+   "eval",
+   "walk(5000)"
+  ],
+  [
+   "shot",
+   "house.png"
+  ],
+  [
+   "eval",
+   "warp(0x0EE, 1)"
+  ],
+  [
+   "eval",
+   "walk(15000)"
+  ],
+  [
+   "shot",
+   "kokiri.png"
+  ],
+  [
+   "eval",
+   "pause()"
+  ],
+  [
+   "eval",
+   "warp(0x0CD, 1)"
+  ],
+  [
+   "eval",
+   "walk(15000)"
+  ],
+  [
+   "shot",
+   "field.png"
+  ],
+  [
+   "eval",
+   "warp(0x0B1, 1)"
+  ],
+  [
+   "eval",
+   "walk(10000)"
+  ],
+  [
+   "shot",
+   "market.png"
+  ],
+  [
+   "eval",
+   "warp(0x169, 0)"
+  ],
+  [
+   "eval",
+   "walk(15000)"
+  ],
+  [
+   "shot",
+   "foresttemple.png"
+  ]
+ ]
+}
