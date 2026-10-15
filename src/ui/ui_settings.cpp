@@ -1119,13 +1119,24 @@ namespace oot::ui {
     Settings machine_defaults() {
         Settings d;
         d.window_mode = 1;      // fullscreen, at the desktop's mode
+#ifdef __EMSCRIPTEN__
+        // On a page, the canvas's own size (the window's), as the other recomps' pages draw.
+        d.resolution = 2;
+#else
         d.resolution = 0;       // the console's own 320 by 240
+#endif
         d.downsampling = 0;
         d.aspect = 0;           // the console's 4:3
         d.hud_ratio = 0;        // the interface where the console put it
         d.antialiasing = 0;     // none, as the console had none
         d.render_distance = 0;  // the game's own distance
+#ifdef __EMSCRIPTEN__
+        // On a page, the display's rate (the game's 20, the renderer interpolating between its frames), as the other
+        // recomps' pages run.
+        d.frame_rate = 1;
+#else
         d.frame_rate = 0;       // the game's own rate: 20 a second
+#endif
         d.counter = 0;
         d.texture_pack = 0;     // the game's own textures
         d.volume_percent = 100;

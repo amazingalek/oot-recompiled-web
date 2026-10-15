@@ -4001,7 +4001,12 @@ namespace {
         g_defaults_done = true;
         const oot::ui::Settings d = oot::ui::machine_defaults();
         oot::ui::apply(d);
+#ifdef __EMSCRIPTEN__
+        // A page starts at the canvas's size and the display's rate (ui_settings.cpp's machine_defaults).
+        g_launch_note = "Starting at the window's size and the display's frame rate. Change any of them";
+#else
         g_launch_note = "Starting as the console played it (" + oot::ui::render::device_name() + "). Raise any of them";
+#endif
         std::fprintf(stderr, "[ui] machine defaults chosen: antialiasing %d for %s\n", d.antialiasing,
                      oot::ui::render::device_name().c_str());
     }
