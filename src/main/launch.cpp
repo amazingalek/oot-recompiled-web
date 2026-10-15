@@ -10,9 +10,14 @@
 #include <mutex>
 #include <system_error>
 
+#ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #include <commdlg.h>
+#endif
+#ifdef __EMSCRIPTEN__
+#include "file_picker.h"
+#endif
 
 #include <SDL.h>
 #include <SDL_syswm.h>
@@ -167,6 +172,16 @@ namespace oot::launch {
         // thread that made the window. The chosen file goes to the browser's path field and
         // through the same validation as a drop or a typed path.
         void pick_rom_with_dialog() {
+#ifdef __EMSCRIPTEN__
+            // On a page, the browser's file picker (N64Recomp-browser's frontend/file_picker.h), which hands over a
+            // copy of the file; take() keeps an accepted one in the browser's storage.
+            const std::vector<std::filesystem::path> picked = n64recomp_browser::pick_files(false, ".z64,.n64,.v64");
+            if (picked.empty()) {
+                std::fprintf(stderr, "[launch] picker: nothing chosen\n");
+                return;
+            }
+            const std::filesystem::path path = picked.front();
+#else
             wchar_t file[MAX_PATH * 4] = {};
             OPENFILENAMEW ofn{};
             ofn.lStructSize = sizeof(ofn);
@@ -187,6 +202,7 @@ namespace oot::launch {
                 return;
             }
             const std::filesystem::path path(file);
+#endif
             const std::u8string u8 = path.u8string();
             std::fprintf(stderr, "[launch] picker: %s\n", path.filename().string().c_str());
             oot::ui::shell::post_browse_path(std::string(u8.begin(), u8.end()));
@@ -252,8 +268,21 @@ namespace oot::launch {
             if (err == recomp::RomValidationError::Good) {
                 g_rom_bytes = std::move(bytes);
                 g_rom_path = path;
+#ifdef __EMSCRIPTEN__
+                // A file the page was handed (picked or dropped) is a copy in memory that is gone on the next visit,
+                // so an accepted one is kept in the browser's storage (places.cpp), and that copy is remembered.
+                const std::filesystem::path kept = oot::places::roms() / path.filename();
+                if (remember_it && path.parent_path() != kept.parent_path()) {
+                    std::error_code ec;
+                    std::filesystem::create_directories(kept.parent_path(), ec);
+                    if (std::filesystem::copy_file(path, kept, std::filesystem::copy_options::overwrite_existing, ec)) {
+                        std::filesystem::remove(path, ec);
+                        g_rom_path = kept;
+                    }
+                }
+#endif
                 if (remember_it) {
-                    oot::rom::remember(recomp::get_config_path(), path);
+                    oot::rom::remember(recomp::get_config_path(), g_rom_path);
                 }
                 set_status(state, name, "");
                 std::fprintf(stderr, "[launch] rom accepted where it is: %s\n", path.string().c_str());
@@ -279,12 +308,17 @@ namespace oot::launch {
 
     const std::filesystem::path& executable_directory() {
         static const std::filesystem::path here = [] {
+#ifdef __EMSCRIPTEN__
+            // The page's own files are at the root of its file system.
+            return std::filesystem::path("/");
+#else
             wchar_t buffer[MAX_PATH * 4] = {};
             const DWORD length = GetModuleFileNameW(nullptr, buffer, static_cast<DWORD>(sizeof(buffer) / sizeof(buffer[0])));
             if (length == 0) {
                 return std::filesystem::current_path();
             }
             return std::filesystem::path(std::wstring(buffer, length)).parent_path();
+#endif
         }();
         return here;
     }
@@ -636,6 +670,10 @@ namespace oot::launch {
 
     std::vector<Entry> drives() {
         std::vector<Entry> out;
+#ifdef __EMSCRIPTEN__
+        // A page has no drives, only the browser's storage, where a ROM picked before is kept.
+        out.push_back(Entry{ "Browser storage", oot::places::data(), true });
+#else
         const DWORD mask = GetLogicalDrives();
         for (int i = 0; i < 26; ++i) {
             if ((mask & (1u << i)) == 0) {
@@ -644,6 +682,7 @@ namespace oot::launch {
             const std::string root = std::string(1, static_cast<char>('A' + i)) + ":\\";
             out.push_back(Entry{ root, std::filesystem::path(root), true });
         }
+#endif
         return out;
     }
 
