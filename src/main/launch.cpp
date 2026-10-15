@@ -514,6 +514,13 @@ namespace oot::launch {
         if (g_window == nullptr) {
             return;
         }
+#ifdef __EMSCRIPTEN__
+        // On a page the window is the canvas, which the page sizes to fill the browser's window:
+        // a size set here would only change how many pixels it has, and the page would stretch
+        // them. So neither the launcher nor the game shapes it, and the launcher's documents never
+        // resize it (g_launcher_shape stays false).
+        return;
+#endif
         SDL_SetWindowBordered(g_window, SDL_FALSE);
         const int height = launcher_height();
         SDL_SetWindowSize(g_window, LAUNCHER_WIDTH, height);
@@ -527,6 +534,9 @@ namespace oot::launch {
         if (g_window == nullptr) {
             return;
         }
+#ifdef __EMSCRIPTEN__
+        return;
+#endif
         // Borderless like the launcher, with our own header drawn over the picture when the
         // pointer is at the top (the shell's frame document) and the edges resizing through
         // the hit test. Coming from the launcher's shape, the window takes the game's size.
