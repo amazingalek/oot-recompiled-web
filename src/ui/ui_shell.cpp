@@ -3992,6 +3992,16 @@ namespace {
         }
     }
 
+    // On a page the window is the canvas, the page's size, which the launcher and the game don't shape
+    // (launch.cpp), so the interface grows with its height past the desktop's 960x720 game window, as
+    // recompui's menus do on the other recomps' pages; below that it stays at one pixel a dp, as on the
+    // desktop. Every size in the style sheets is in dp.
+    void scale_to_canvas() {
+#ifdef __EMSCRIPTEN__
+        g_context->SetDensityIndependentPixelRatio(std::max(1.0f, static_cast<float>(g_height) / 720.0f));
+#endif
+    }
+
     // The launcher's defaults for a fresh install, chosen once when there is no settings file:
     // the console's own picture, fullscreen (2026-10-08), for the person to raise.
     void choose_machine_defaults() {
@@ -4401,6 +4411,7 @@ namespace {
             say("no RmlUi context, so there will be no interface");
             return false;
         }
+        scale_to_canvas();
 
         g_settings_doc = load("settings.rml");
         g_about_doc = load("about.rml");
@@ -4532,6 +4543,7 @@ namespace oot::ui::shell {
             g_width = width;
             g_height = height;
             g_context->SetDimensions(Rml::Vector2i(width, height));
+            scale_to_canvas();
             if (g_screen == Screen::Controls) {
                 size_long_rows(g_controls_doc, "controls-rows");
             }
