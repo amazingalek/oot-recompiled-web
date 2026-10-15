@@ -54,8 +54,9 @@
   };
   const send = (type, [code, key, keyCode]) =>
     window.dispatchEvent(new KeyboardEvent(type, { code, key, keyCode, which: keyCode, bubbles: true }));
-  // Held for 150 ms: the game reads the keyboard's state once a frame, 20 a second, and misses a shorter press.
-  const press = async (name, ms = 150) => { send('keydown', keys[name]); await sleep(ms); send('keyup', keys[name]); };
+  // Held for 300 ms: the game reads the keyboard's state once a frame, 20 a second at most, and misses a shorter press
+  // (150 ms was missed at times while the ubershader drew a recording's attract demo slowly).
+  const press = async (name, ms = 300) => { send('keydown', keys[name]); await sleep(ms); send('keyup', keys[name]); };
   window.state = () => ({ mode: r32(GAME_MODE), entrance: r32(ENTRANCE), age: r32(AGE) });
 
   // Resolves at once, the page's thread free meanwhile: a timer waits at least 4 ms, a message to itself a few us.
