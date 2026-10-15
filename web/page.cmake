@@ -12,6 +12,9 @@
 # - The fonts are RmlUi's sample faces (src/ui/ui_shell.cpp says why), preloaded with the assets.
 # - The ROM comes from the browser's file picker (lib/N64Recomp-browser/frontend/file_picker.h) and is kept in the
 #   browser's storage (src/main/places.cpp, launch.cpp).
+# - The launcher asks nothing about updates or a copy of the ROM, and has no Quit or window buttons (ui_shell.cpp).
+# - web/survey.cpp lets a script warp the game to an entrance, which records the shader list a place at a time
+#   (tools/shader_survey.js).
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -133,7 +136,7 @@ add_custom_command(
     COMMENT "Embedding the patch binary")
 
 # The desktop build's sources, with web/stubs.cpp in place of crash_handler.cpp, install.cpp, updates.cpp,
-# signature.cpp and video.cpp.
+# signature.cpp and video.cpp, and web/survey.cpp.
 add_executable(OoTRecompiled
     src/main/main.cpp
     src/game/register_patches.cpp
@@ -176,6 +179,7 @@ add_executable(OoTRecompiled
     src/game/libultra_shims.cpp
     src/game/recomp_api.cpp
     web/stubs.cpp
+    web/survey.cpp
     ${RECOMPILED_PATCHES}
     ${RSP_SOURCES})
 target_include_directories(OoTRecompiled PRIVATE

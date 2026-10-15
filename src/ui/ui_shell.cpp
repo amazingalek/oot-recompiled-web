@@ -349,6 +349,17 @@ namespace {
         if (doc == nullptr) {
             std::fprintf(stderr, "[ui] %s would not load; the rml log above says why\n", path.c_str());
         }
+#ifdef __EMSCRIPTEN__
+        // The window is the page's canvas, which can't be minimized, maximized or closed, and
+        // there is no Quit (rows_for).
+        else {
+            for (const char* id : { "win-min", "win-max", "win-close", "act-quit" }) {
+                if (Rml::Element* element = doc->GetElementById(id)) {
+                    element->SetProperty("display", "none");
+                }
+            }
+        }
+#endif
         return doc;
     }
 
@@ -779,6 +790,15 @@ namespace {
     // and it sits directly under the pack row because it is the next row in the table.
     bool is_hidden_setting(int row) {
         static const int detail = oot::ui::row_index("texturedetail");
+#ifdef __EMSCRIPTEN__
+        // A page has no updater (it is updated by publishing it) and no video recorder (Media
+        // Foundation), so their rows would do nothing there (web/stubs.cpp).
+        static const int updates = oot::ui::row_index("updates");
+        static const int video = oot::ui::row_index("videorecording");
+        if (row >= 0 && (row == updates || row == video)) {
+            return true;
+        }
+#endif
         return (row >= 0) && (row == detail) && (oot::ui::settings().texture_pack == 0);
     }
 
@@ -1003,6 +1023,14 @@ namespace {
         if (screen != Screen::Launch) {
             rows.push_back(RowSpec{ RowKind::Debug, 0 });
         }
+#ifdef __EMSCRIPTEN__
+        // No Quit on a page: there is nothing to quit to, and a program that has exited leaves the
+        // page dead. load() hides its button and the window's own.
+        if (screen == Screen::Launch) {
+            rows.push_back(RowSpec{ RowKind::Play, 0 });
+        }
+        return rows;
+#endif
         if (screen == Screen::Launch) {
             rows.push_back(RowSpec{ RowKind::Play, 0 });
             rows.push_back(RowSpec{ RowKind::Quit, 0 });
@@ -2145,6 +2173,12 @@ namespace {
     // Which question is due, if any. Returns false when there is nothing left to ask, which is
     // the normal state after the first run.
     bool ask_next_question() {
+#ifdef __EMSCRIPTEN__
+        // Neither question is one a page can ask: it has no updater, and the ROM it was given is
+        // already kept in the browser's storage (launch.cpp).
+        g_question = Question::None;
+        return false;
+#endif
         if (!oot::ui::update_choice_made()) {
             g_question = Question::Updates;
             return true;
