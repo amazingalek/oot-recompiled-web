@@ -1328,7 +1328,12 @@ namespace {
                 // in the row order, so everything that walks the rows still walks them, and
                 // apply_rows_focus puts the focus on the button instead.
                 case RowKind::Play:
+#ifdef __EMSCRIPTEN__
+                    // On a page the button is the way to give it the ROM (below).
+                    set_text(doc, "act-play-label", launch::rom_ready() ? "Play" : "Load ROM");
+#else
                     set_text(doc, "act-play-label", launch::rom_ready() ? "Play" : "Needs a ROM");
+#endif
                     continue;
                 case RowKind::Quit:
                     set_text(doc, "act-quit-label", "Quit");
@@ -1624,7 +1629,13 @@ namespace {
                         }
                         break;
                     case RowKind::Rom:
+#ifdef __EMSCRIPTEN__
+                        // The browser's own file picker: the page's files are only the ones it
+                        // was given, so there is nothing for the ROM browser to browse.
+                        launch::request_pick_rom();
+#else
                         show(Screen::Browse);
+#endif
                         break;
                     case RowKind::Controls:
                         show(Screen::Controls);
@@ -1648,8 +1659,12 @@ namespace {
                             launch::request_play();
                         }
                         else {
+#ifdef __EMSCRIPTEN__
+                            launch::request_pick_rom();
+#else
                             g_launch_note = "Choose a ROM first: drop it on the window, or Enter on the ROM row";
                             reflect_rows(screen);
+#endif
                         }
                         break;
                     case RowKind::Quit:
