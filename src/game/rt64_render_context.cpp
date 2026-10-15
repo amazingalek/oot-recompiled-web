@@ -38,7 +38,9 @@
 #include "hle/rt64_present_queue.h"
 // The D3D12 device behind plume's interface, for the removed device report (report_gpu_state):
 // the device removed reason and the breadcrumbs are D3D12's own and have no plume surface.
+#ifndef __EMSCRIPTEN__
 #include "plume/plume_d3d12.h"
+#endif
 
 #include "librecomp/game.hpp"
 #include "ultramodern/ultramodern.hpp"
@@ -119,6 +121,7 @@ namespace {
     // cost a little every frame, and the report is for bring-up and for bug reports.
     bool g_gpu_breadcrumbs = false;
 
+#ifndef __EMSCRIPTEN__
     void enable_gpu_breadcrumbs() {
         ID3D12DeviceRemovedExtendedDataSettings* settings = nullptr;
         if (FAILED(D3D12GetDebugInterface(IID_PPV_ARGS(&settings))) || settings == nullptr) {
@@ -175,6 +178,7 @@ namespace {
             default: return "an unknown reason";
         }
     }
+#endif
 
     // Phase 53: what the harness asked for on the command line, applied once after setup. When
     // given, the flag wins over the lighting file's level and view for the run (phase 57), so
@@ -708,9 +712,11 @@ oot::renderer::RT64Context::RT64Context(uint8_t* rdram,
     }
 
     // Before the device exists, or it is too late to ask for them.
+#ifndef __EMSCRIPTEN__
     if (g_gpu_breadcrumbs) {
         enable_gpu_breadcrumbs();
     }
+#endif
 
     setup_result = map_setup_result(app->setup(window_handle.thread_id));
     chosen_api = map_graphics_api(app->chosenGraphicsAPI);
@@ -981,7 +987,13 @@ void oot::renderer::set_picture_inset(int left, int right) {
     if (g_app == nullptr || g_app->sharedQueueResources == nullptr) {
         return;
     }
+#ifdef __EMSCRIPTEN__
+    // A page's RT64 has no picture inset (the video recorder's, rt64-patches/0053, which a page has no use for).
+    (void)left;
+    (void)right;
+#else
     g_app->sharedQueueResources->setPictureInset(static_cast<uint32_t>(std::max(left, 0)), static_cast<uint32_t>(std::max(right, 0)));
+#endif
 }
 
 void oot::renderer::set_picture(const PictureValues& values) {
@@ -1077,6 +1089,7 @@ void oot::renderer::report_gpu_state() {
     if (g_app == nullptr || g_app->device == nullptr) {
         return;
     }
+#ifndef __EMSCRIPTEN__
     if (g_app->chosenGraphicsAPI != RT64::UserConfiguration::GraphicsAPI::D3D12) {
         return;
     }
@@ -1145,6 +1158,7 @@ void oot::renderer::report_gpu_state() {
         }
     }
     dred->Release();
+#endif
 }
 
 plume::RenderTexture* oot::renderer::swap_chain_texture(const plume::RenderFramebuffer* framebuffer) {

@@ -22,9 +22,20 @@
 
 #include <RmlUi/Core.h>
 
+#ifdef __EMSCRIPTEN__
+// A page draws through WebGPU, so its interface shaders are WGSL (web/page.cmake makes them from ui.hlsl).
+#include "ui_vs.hlsl.wgsl.h"
+#include "ui_ps.hlsl.wgsl.h"
+#include "ui_mark_ps.hlsl.wgsl.h"
+#define UI_SHADER_FORMAT RenderShaderFormat::WGSL
+#define UI_SHADER(name) name##_wgsl, name##_wgsl_size
+#else
 #include "ui_vs.hlsl.dxil.h"
 #include "ui_ps.hlsl.dxil.h"
 #include "ui_mark_ps.hlsl.dxil.h"
+#define UI_SHADER_FORMAT RenderShaderFormat::DXIL
+#define UI_SHADER(name) name##_dxil, name##_dxil_size
+#endif
 
 #include <chrono>
 
@@ -854,19 +865,19 @@ namespace {
         }
 
         const RenderShaderFormat format = rhi->getCapabilities().shaderFormat;
-        if (format != RenderShaderFormat::DXIL) {
-            say("this build only carries DXIL shaders, so the interface will stay dark");
+        if (format != UI_SHADER_FORMAT) {
+            say("this build only carries one format of shaders, so the interface will stay dark");
             return;
         }
 
-        auto vs = g_device->createShader(ui_vs_dxil, ui_vs_dxil_size, "VSMain", format);
-        auto ps = g_device->createShader(ui_ps_dxil, ui_ps_dxil_size, "PSMain", format);
+        auto vs = g_device->createShader(UI_SHADER(ui_vs), "VSMain", format);
+        auto ps = g_device->createShader(UI_SHADER(ui_ps), "PSMain", format);
         if (vs == nullptr || ps == nullptr) {
             say("the interface shaders would not load");
             return;
         }
         // The mark's pixel shader. Its absence costs the mark, not the interface.
-        auto mark_ps = g_device->createShader(ui_mark_ps_dxil, ui_mark_ps_dxil_size, "PSMark", format);
+        auto mark_ps = g_device->createShader(UI_SHADER(ui_mark_ps), "PSMark", format);
         if (mark_ps == nullptr) {
             say("the mark's shader would not load, so the mark will not be drawn");
         }
@@ -882,7 +893,13 @@ namespace {
         // their bindings are. Confusing the two is how a sampler ends up bound to nothing.
         g_set_builder.begin();
         g_set_builder.addTexture(0);
+#ifdef __EMSCRIPTEN__
+        // WebGPU numbers a set's bindings in one space, so the sampler is binding 1 there (the WGSL is compiled with
+        // dxc's -fvk-s-shift 1 0, web/page.cmake).
+        g_set_builder.addSampler(1);
+#else
         g_set_builder.addSampler(0);
+#endif
         g_set_builder.end();
 
         // The transform for the vertex stage and the mark's time for the pixel stage, one range.
@@ -916,7 +933,12 @@ namespace {
         desc.inputSlotsCount = 1;
         desc.inputElements = elements;
         desc.inputElementsCount = 3;
+#ifdef __EMSCRIPTEN__
+        // A page's swap chain is in the browser's preferred canvas format (bgra8unorm on Windows, rgba8unorm elsewhere).
+        desc.renderTargetFormat[0] = g_device->getCapabilities().preferredSwapChainFormat;
+#else
         desc.renderTargetFormat[0] = RenderFormat::B8G8R8A8_UNORM;
+#endif
         desc.renderTargetCount = 1;
         desc.primitiveTopology = RenderPrimitiveTopology::TRIANGLE_LIST;
         desc.depthEnabled = false;
@@ -1109,7 +1131,10 @@ namespace oot::ui::render {
 
     void install_hooks() {
         RT64::SetRenderHooks(hook_init, hook_draw, hook_deinit);
+#ifndef __EMSCRIPTEN__
+        // The video recorder's picture (rt64-patches/0053): a page has no recorder, and its RT64 no such hook.
         RT64::SetRenderHookPicture(video_picture_size, video_picture);
+#endif
     }
 
     bool ready() {

@@ -9,6 +9,12 @@ cmake_minimum_required(VERSION 3.20)
 
 project(OoTRecompiled VERSION 0.5.0 LANGUAGES C CXX)
 
+# With Emscripten (emcmake cmake), the game builds as a page for a browser instead: web/page.cmake, BUILDING.md.
+if (EMSCRIPTEN)
+    include(${CMAKE_SOURCE_DIR}/web/page.cmake)
+    return()
+endif()
+
 # The executable's icon is a Windows resource (src/main/app.rc), compiled by the resource
 # compiler the Build Tools environment provides; the mark it holds is cut by tools/make_icon.py.
 enable_language(RC)

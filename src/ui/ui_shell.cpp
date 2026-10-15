@@ -36,9 +36,11 @@
 #include <string>
 #include <vector>
 
+#ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #include <shellapi.h>
+#endif
 
 #include <RmlUi/Core.h>
 #include <RmlUi/Core/Elements/ElementFormControl.h>
@@ -293,6 +295,26 @@ namespace {
             return;
         }
 
+#ifdef __EMSCRIPTEN__
+        // A page has no system faces. It carries RmlUi's own sample faces (Lato and Roboto Mono,
+        // under the SIL Open Font License and the Apache License, their LICENSE.txt beside them,
+        // web/page.cmake), registered under the family names tokens.rcss asks for.
+        struct Face { const char* file; const char* family; Rml::Style::FontWeight weight; };
+        const Face web_faces[] = {
+            { "LatoLatin-Regular.ttf", "Georgia", Rml::Style::FontWeight::Normal },
+            { "LatoLatin-Bold.ttf", "Georgia", Rml::Style::FontWeight::Bold },
+            { "LatoLatin-Regular.ttf", "Segoe UI", Rml::Style::FontWeight::Normal },
+            { "LatoLatin-Bold.ttf", "Segoe UI", Rml::Style::FontWeight::Bold },
+            { "RobotoMono-Regular.ttf", "Consolas", Rml::Style::FontWeight::Normal },
+            { "RobotoMono-Bold.ttf", "Consolas", Rml::Style::FontWeight::Bold },
+        };
+        for (const Face& face : web_faces) {
+            if (Rml::LoadFontFace(g_assets_dir + "/web-fonts/" + face.file, face.family, Rml::Style::FontStyle::Normal,
+                                  face.weight, loaded == 0)) {
+                ++loaded;
+            }
+        }
+#else
         // The design decision's own fallback stacks name a serif for display and the system face
         // for reading, so this is the documented second choice rather than an improvisation.
         const std::vector<std::string> system_faces = {
@@ -307,6 +329,7 @@ namespace {
                 ++loaded;
             }
         }
+#endif
 
         if (loaded == 0) {
             say("no font could be loaded, so the interface will have no text at all");
@@ -1860,7 +1883,13 @@ namespace {
         if (!std::filesystem::exists(folder, ec)) {
             return;
         }
+#ifdef __EMSCRIPTEN__
+        // A page's folders are in the browser's storage, which no file browser can show.
+        std::fprintf(stderr, "[ui] %s is in the browser's storage
+", folder.string().c_str());
+#else
         ShellExecuteW(nullptr, L"open", folder.wstring().c_str(), nullptr, nullptr, SW_SHOWNORMAL);
+#endif
     }
 
     void click_files(const std::string& id) {
