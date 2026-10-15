@@ -689,7 +689,13 @@ namespace {
     // the foot) or runs the list past the bottom of the case.
     float rows_cap(Screen screen) {
         if (screen == Screen::Launch) {
+#ifdef __EMSCRIPTEN__
+            // The chrome is measured at one pixel a dp; a page scales the interface (scale_to_canvas).
+            return static_cast<float>(g_height) -
+                   static_cast<float>(launch::launcher_chrome_height()) * g_context->GetDensityIndependentPixelRatio();
+#else
             return static_cast<float>(g_height - launch::launcher_chrome_height());
+#endif
         }
         // A panel against an edge fills the window's height: no cap, and the stylesheet gives the
         // list the room between the lid and the foot (2026-09-24). A modal over the picture keeps
