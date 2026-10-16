@@ -75,43 +75,13 @@ loads File 1 (making it on a new profile), skips the new file's opening cutscene
 through `Module._oot_web_warp` (`web/survey.cpp`, which asks for the warp the debug menu's Warp rows ask for).
 `tools/play_plan.json` is what N64Recomp-browser's `tools/play_page.mjs` plays to measure the page.
 
-## Played
+## How it plays
 
-On 2026-10-15, a local build of main e51ed04 (N64Recomp-browser 1d0d24a), Chrome 155 headless and Firefox 158, an RTX
-2070, a busy host (34-45%), a cold profile each, by `tools/play_plan.json` (N64Recomp-browser's `tools/play_page.mjs`):
-the title, File 1, Link's house, Kokiri Forest, the pause menu, Hyrule Field, the market and the Forest Temple as an
-adult, about 155 s of play each:
+How the page plays in Chrome and Firefox, run by run, is recorded in N64Recomp-browser's
+[plays.jsonl](https://github.com/amazingalek/N64Recomp-browser/blob/main/plays.jsonl) and its
+[games table](https://github.com/amazingalek/N64Recomp-browser#games).
 
-```
-                  presents/s   frame gaps        sound frames   waits for the shader list (s, shaders)
-                  median  p10  p99 ms  longest   short of ~6M
-Chrome 1256x645    59.2   48.5   21    8.0 s        536          none
-Firefox 1256x645   55.0   35.2   33    4.0 s      2,824          4.9 (58), 1.3 (26), 3.0 (65), 3.8 (57), 0.7 (12)
-Chrome 3840x2000   59.1   51.4   22    8.0 s      4,784          none
-Firefox 3840x2000  54.2   38.4   36    4.0 s        168          5.6 (58), 1.4 (26), 2.9 (65), 3.8 (57), 0.7 (12)
-```
-
-No WebGPU errors and no exceptions in any run, the GPU 33-40% busy. Firefox's waits are the boot's section before the
-first frame, then the menus' after Start, Kokiri Forest's, the market's and the Forest Temple's as the game first draws
-there; between them it draws 55-60, and its median holds the waits. Chrome builds the list behind the game, all 455
-pipelines 45-60 s in, and waits for none. In Chrome the file's load into Link's house held the picture 8 s (the longest
-gaps above): the plan's own survey waited for the file select's hand-over in a loop of messages to itself, ~10,000 tasks
-a second on the page's thread, which starved the tasks that carry the device thread's WebGPU work there (a CDP trace:
-88,000 of them in a 3.4 s hold, the GPU process idle). It waits on a timer now. The same plan from Pages (main 16285f5)
-with it, a busy host and another page on the GPU: Chrome 56.4 presents a second at 1256x645 and 55.6 at 3840x2000 (the
-headless browser's frames at ~56 a second), the longest gap 0.87-0.90 s (a pipeline built in line at the title), no
-shader waits; Firefox 59.0 and 59.2, its waits as before.
-
-From Pages (main 16285f5), cold, 3840x2000 (a stand-in for a laptop's integrated graphics), 25 s of the game running
-by itself after Start: Chrome 59.6 presents a second, Firefox 59.2 after its 4.9 s wait for the boot's 58; no WebGPU
-errors.
-
-Played on N64Recomp-browser v0.50.0 (main d8761bd built with its pin moved there, served locally) on 2026-10-16, RTX
-2070, a fresh profile each, one page at a time, a quiet host, by `tools/play_plan.json` with `play_page.mjs`: at
-1256x645 headless Chrome 155 never waited and drew 55.6 presents a second (median; headless Chrome drew about 56 frames
-a second that night: four games played from Pages beside their builds, as a control, read 54.8-55.6 too), Firefox 158
-waited 12.2 s in all and drew 59.9; uncapped at 3840x2000 (`--uncapped --play 25`, the first such run) Chrome drew 335.3
-and Firefox 196.0 after 5.1 s. Sound short only in the first seconds and Firefox's waits, no WebGPU errors.
-
-Sound is short in the first seconds after the launcher and in Firefox's waits, nowhere else. Chrome with a window
-(`--headed`) on an earlier build of the same list: 59.2 presents a second.
+`tools/shader_survey.js` waits for the file select's hand-over on a timer. It once waited in a loop of messages to
+itself, ~10,000 tasks a second on the page's thread, which starved the tasks that carry the device thread's WebGPU work
+there: in Chrome the file's load into Link's house held the picture 8 s (a CDP trace: 88,000 of those tasks in a 3.4 s
+hold, the GPU process idle).
