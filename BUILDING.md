@@ -63,8 +63,8 @@ and settings. N64Recomp-browser's `tools/publish_page.sh` publishes the build di
 
 The page builds the shaders the game uses before it draws with them, so it never draws with RT64's slow ubershader in
 the middle of play: `src/rt64_shaders.txt` lists them in sections (its header says what each one holds), and the build
-specializes each one (`RT64_PREBUILT_SHADER_LIST`, `web/page.cmake`). In Chrome the whole list is built behind the game
-from its first frame, and the game waits only when a frame wants 4 or more of a section's shaders that aren't built
+specializes each one (`RT64_PREBUILT_SHADER_LIST`, `web/page.cmake`). In Chrome the whole list is built in the
+background, and the game waits only when a frame wants 4 or more of a section's shaders that aren't built
 yet, under a small "Preparing graphics" indicator in a corner. Firefox builds a pipeline in line with the rest of its
 GPU work, so there those above the first section are built before the game starts, and a region's section when the
 game first draws there, the game waiting.
