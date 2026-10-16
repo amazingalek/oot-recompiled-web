@@ -106,5 +106,12 @@ From Pages (main 16285f5), cold, 3840x2000 (a stand-in for a laptop's integrated
 by itself after Start: Chrome 59.6 presents a second, Firefox 59.2 after its 4.9 s wait for the boot's 58; no WebGPU
 errors.
 
+Played on N64Recomp-browser v0.50.0 (main d8761bd built with its pin moved there, served locally) on 2026-10-16, RTX
+2070, a fresh profile each, one page at a time, a quiet host, by `tools/play_plan.json` with `play_page.mjs`: at
+1256x645 headless Chrome 155 never waited and drew 55.6 presents a second (median; headless Chrome drew about 56 frames
+a second that night: four games played from Pages beside their builds, as a control, read 54.8-55.6 too), Firefox 158
+waited 12.2 s in all and drew 59.9; uncapped at 3840x2000 (`--uncapped --play 25`, the first such run) Chrome drew 335.3
+and Firefox 196.0 after 5.1 s. Sound short only in the first seconds and Firefox's waits, no WebGPU errors.
+
 Sound is short in the first seconds after the launcher and in Firefox's waits, nowhere else. Chrome with a window
 (`--headed`) on an earlier build of the same list: 59.2 presents a second.
