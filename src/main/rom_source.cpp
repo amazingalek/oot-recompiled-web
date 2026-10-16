@@ -7,6 +7,13 @@
 #include <string_view>
 #include <system_error>
 
+#ifdef __EMSCRIPTEN__
+#include <algorithm>
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#endif
+
 // The same hash the runtime uses, from the same header it uses. Header only, so including it here
 // costs a copy of the implementation rather than a link dependency, which is what librecomp does
 // with it too.
@@ -28,6 +35,28 @@ namespace oot::rom {
 
         std::vector<uint8_t> read_whole_file(const std::filesystem::path& path) {
             std::vector<uint8_t> bytes;
+#ifdef __EMSCRIPTEN__
+            // A page's files are in the page's thread's file system, and every read from another thread waits for
+            // that thread: libc++ reads the 32 MB ROM there in pieces of 2 KB, ~16,000 round trips on the launcher's
+            // thread. So it is read in 4 MB pieces.
+            const int fd = open(path.c_str(), O_RDONLY);
+            struct stat st;
+            if (fd >= 0 && fstat(fd, &st) == 0) {
+                bytes.resize(static_cast<size_t>(st.st_size));
+                size_t done = 0;
+                while (done < bytes.size()) {
+                    const ssize_t got = read(fd, bytes.data() + done, std::min<size_t>(bytes.size() - done, 4 << 20));
+                    if (got <= 0) {
+                        break;
+                    }
+                    done += static_cast<size_t>(got);
+                }
+                bytes.resize(done);
+            }
+            if (fd >= 0) {
+                close(fd);
+            }
+#else
             std::ifstream file{ path, std::ios::binary };
             if (file.good()) {
                 file.seekg(0, std::ios::end);
@@ -38,6 +67,7 @@ namespace oot::rom {
                     file.read(reinterpret_cast<char*>(bytes.data()), static_cast<std::streamsize>(bytes.size()));
                 }
             }
+#endif
             return bytes;
         }
 

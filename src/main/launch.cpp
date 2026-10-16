@@ -16,6 +16,10 @@
 #include <commdlg.h>
 #endif
 #ifdef __EMSCRIPTEN__
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <unistd.h>
+
 #include "file_picker.h"
 #endif
 
@@ -254,6 +258,51 @@ namespace oot::launch {
             g_status.detail = detail;
         }
 
+#ifdef __EMSCRIPTEN__
+        // Copies a file the page was handed into the browser's storage. A page's files are in the page's thread's
+        // file system, and every read or write from another thread waits for that thread: libc++'s copy_file goes
+        // through fstreams a few KB at a time, thousands of round trips for the 32 MB ROM, and the launcher, whose
+        // thread this runs on, presents nothing meanwhile. So it is read in 4 MB pieces and written in one.
+        bool copy_whole_file(const std::filesystem::path& from, const std::filesystem::path& to) {
+            std::vector<uint8_t> bytes;
+            const int in = open(from.c_str(), O_RDONLY);
+            struct stat st;
+            if (in < 0 || fstat(in, &st) != 0) {
+                if (in >= 0) {
+                    close(in);
+                }
+                return false;
+            }
+            bytes.resize(st.st_size);
+            size_t done = 0;
+            while (done < bytes.size()) {
+                const ssize_t got = read(in, bytes.data() + done, std::min<size_t>(bytes.size() - done, 4 << 20));
+                if (got <= 0) {
+                    break;
+                }
+                done += got;
+            }
+            close(in);
+            if (done != bytes.size()) {
+                return false;
+            }
+            const int out = open(to.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0644);
+            if (out < 0) {
+                return false;
+            }
+            done = 0;
+            while (done < bytes.size()) {
+                const ssize_t put = write(out, bytes.data() + done, bytes.size() - done);
+                if (put <= 0) {
+                    break;
+                }
+                done += put;
+            }
+            close(out);
+            return done == bytes.size();
+        }
+#endif
+
         // Validate where the file lies and keep it there. `state` is what an accepted one reads
         // as (found beside the program, chosen, or the one remembered from last time).
         //
@@ -275,7 +324,7 @@ namespace oot::launch {
                 if (remember_it && path.parent_path() != kept.parent_path()) {
                     std::error_code ec;
                     std::filesystem::create_directories(kept.parent_path(), ec);
-                    if (std::filesystem::copy_file(path, kept, std::filesystem::copy_options::overwrite_existing, ec)) {
+                    if (copy_whole_file(path, kept)) {
                         std::filesystem::remove(path, ec);
                         g_rom_path = kept;
                     }
