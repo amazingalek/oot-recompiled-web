@@ -9,8 +9,9 @@
  "setup": [
   [
    "rom",
-   628,
-   550
+   "Enter",
+   "Enter",
+   13
   ],
   [
    "wait",
@@ -19,9 +20,10 @@
  ],
  "start": [
   [
-   "click",
-   628,
-   550
+   "key",
+   "Enter",
+   "Enter",
+   13
   ],
   [
    "wait",
