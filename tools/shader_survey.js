@@ -20,11 +20,22 @@
 //   than one side; look(ms) holds C-up (first person) and pans; pause() opens the pause menu, turns its four pages
 //   with R and closes it.
 // - state() gives the game mode (0 play, 1 title, 2 file select), the save's entrance and Link's age.
+// - For what only playing draws (night, items in use, a boss's fight): gear(adult) gives the save every item, its
+//   ammo, magic, 20 hearts, the Master Sword and Hylian Shield for an adult (the Kokiri Sword and Deku Shield for a
+//   child) and C buttons for the age (an adult's bow, hookshot and bombs, a child's slingshot, boomerang and nuts);
+//   equip(l, d, r) puts other items (item ids) on the C buttons; night(on) sets the clock to 01:30 or 10:00 for the
+//   next scene loaded; skip(n) presses A n times, 700 ms apart (text, a boss's intro); fight(ms, kind) sways forward
+//   and back about where Link is, targeting and swinging B, his health and magic filled each turn, and uses the C
+//   buttons: 'aim' holds each and lets go (bow, slingshot, hookshot), 'tap' presses each twice (bombs, nuts, the
+//   hammer, Din's Fire), 'none' never.
 // The save context is the decompilation's gSaveContext (0x8011A5D0 in NTSC-U 1.0): entranceIndex at +0, linkAge at
-// +4, cutsceneIndex at +8, gameMode at +0x135C, nextCutsceneIndex (u16) at +0x1412, as the decompilation's save.h
-// has them. The play state is found through D_8012D1F8 (named for its
-// address in the debug ROM; 0x800FE4D0 here, OoTRecompSyms), which the game points at its first controller, the play
-// state's state.input[0] at +0x14 (patches/harness_warp.c keeps it so);
+// +4, cutsceneIndex at +8, dayTime (u16) at +0xC, nightFlag at +0x10, health capacity and health at +0x2E and +0x30,
+// magic level and magic at +0x32 and +0x33, rupees at +0x34, magic acquired at +0x3A, double defense at +0x3D, the
+// buttons' items at +0x68 (B and the three C) and their slots at +0x6C, the equipment at +0x70, the items at +0x74,
+// their ammo at +0x8C, the owned equipment at +0x9C, the upgrades at +0xA0, gameMode at +0x135C, nextCutsceneIndex
+// (u16) at +0x1412, magic's target at +0x13F4, as the decompilation's save.h has them. The play state is found
+// through D_8012D1F8 (named for its address in the debug ROM; 0x800FE4D0 here, OoTRecompSyms), which the game points
+// at its first controller, the play state's state.input[0] at +0x14 (patches/harness_warp.c keeps it so);
 // linkAgeOnLoad is its byte at +0x11DE8 (the decompilation's play_state.h). RDRAM is found as the recorder's n64r finds
 // it; a byte sits at the address XOR 3 in its little-endian words.
 (() => {
@@ -47,9 +58,12 @@
   const SAVE = 0x8011A5D0, ENTRANCE = SAVE, AGE = SAVE + 4, CUTSCENE = SAVE + 8, GAME_MODE = SAVE + 0x135C;
   const NEXT_CUTSCENE = SAVE + 0x1412, NO_CUTSCENE = 0xFFEF;
   const FIRST_INPUT = 0x800FE4D0, AGE_ON_LOAD = 0x11DE8 - 0x14;
-  // The game's own keyboard (src/main/input_bindings.cpp): Space is A, Enter Start, WASD the stick, I C-up, R is R.
+  // The game's own keyboard (src/main/input_bindings.cpp): Space is A, Left Shift B, Q Z, Enter Start, WASD the stick,
+  // IJKL the C buttons, R is R.
   const keys = {
-    A: ['Space', ' ', 32], START: ['Enter', 'Enter', 13], R: ['KeyR', 'r', 82], CUP: ['KeyI', 'i', 73],
+    A: ['Space', ' ', 32], B: ['ShiftLeft', 'Shift', 16], Z: ['KeyQ', 'q', 81], START: ['Enter', 'Enter', 13],
+    R: ['KeyR', 'r', 82], CUP: ['KeyI', 'i', 73], CLEFT: ['KeyJ', 'j', 74], CDOWN: ['KeyK', 'k', 75],
+    CRIGHT: ['KeyL', 'l', 76],
     UP: ['KeyW', 'w', 87], DOWN: ['KeyS', 's', 83], LEFT: ['KeyA', 'a', 65], RIGHT: ['KeyD', 'd', 68],
   };
   const send = (type, [code, key, keyCode]) =>
@@ -155,5 +169,73 @@
     }
     await press('START');
     await sleep(2500);
+  };
+
+  // The items' slots in order: sticks, nuts, bombs, bow, fire arrows, Din's Fire, slingshot, the Ocarina of Time,
+  // bombchus, hookshot, ice arrows, Farore's Wind, boomerang, lens, beans, hammer, light arrows, Nayru's Love, four
+  // empty bottles, two empty slots.
+  const items = [0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x08, 0x09, 0x0A, 0x0C, 0x0D, 0x0E, 0x0F, 0x10, 0x11,
+    0x12, 0x13, 0x14, 0x14, 0x14, 0x14, 0xFF, 0xFF];
+  const ammo = [20, 30, 20, 30, 0, 0, 30, 0, 20, 0, 0, 0, 0, 0, 5, 0];
+  const heal = () => {
+    w16(SAVE + 0x2E, 0x140); w16(SAVE + 0x30, 0x140);
+    w8(SAVE + 0x32, 1); w8(SAVE + 0x33, 0x30); w8(SAVE + 0x3A, 1); w16(SAVE + 0x13F4, 0x30);
+  };
+  window.equip = (l, d, r) => {
+    [l, d, r].forEach((id, i) => {
+      w8(SAVE + 0x69 + i, id);
+      w8(SAVE + 0x6C + i, Math.max(0, items.indexOf(id)));
+    });
+    return 'C ' + [l, d, r].map((id) => id.toString(16)).join(' ');
+  };
+  window.gear = (adult) => {
+    items.forEach((id, i) => w8(SAVE + 0x74 + i, id));
+    ammo.forEach((n, i) => w8(SAVE + 0x8C + i, n));
+    w16(SAVE + 0x9C, 0x7777);
+    // The first quiver, bomb bag, bullet bag, sticks and nuts.
+    w32(SAVE + 0xA0, 1 | (1 << 3) | (1 << 14) | (1 << 17) | (1 << 20));
+    w16(SAVE + 0x34, 500);
+    w8(SAVE + 0x3D, 1);
+    heal();
+    if (adult) { w8(SAVE + 0x68, 0x3C); w16(SAVE + 0x70, 0x1122); window.equip(0x03, 0x0A, 0x02); }
+    else { w8(SAVE + 0x68, 0x3B); w16(SAVE + 0x70, 0x1111); window.equip(0x06, 0x0E, 0x01); }
+    return 'gear ' + (adult ? 'adult' : 'child');
+  };
+  window.night = (on) => {
+    w16(SAVE + 0x0C, on ? 0x1000 : 0x6AAA);
+    w32(SAVE + 0x10, on ? 1 : 0);
+    return on ? 'night' : 'day';
+  };
+  window.skip = async (n) => {
+    for (let i = 0; i < n; i++) {
+      await press('A');
+      await sleep(700);
+    }
+  };
+  window.fight = async (ms, kind = 'aim') => {
+    const end = Date.now() + ms;
+    const cs = ['CLEFT', 'CDOWN', 'CRIGHT'];
+    for (let i = 0; Date.now() < end; i++) {
+      heal();
+      await press('Z');
+      await press('UP', 900);
+      await press('B');
+      await sleep(250);
+      await press('B');
+      await sleep(250);
+      await press(i % 2 ? 'LEFT' : 'RIGHT', 450);
+      await press('DOWN', 900);
+      if (kind === 'aim') {
+        await press(cs[i % 3], 1500);
+        await sleep(800);
+      } else if (kind === 'tap') {
+        await press(cs[i % 3]);
+        await sleep(1200);
+        await press(cs[i % 3]);
+        await sleep(900);
+      }
+      await press('A');
+      await sleep(300);
+    }
   };
 })();

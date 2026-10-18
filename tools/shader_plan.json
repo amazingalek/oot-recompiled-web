@@ -13,8 +13,13 @@
   "launcher, the logos and the title screen waiting for Start. Then the menus: the file select, name entry for a new",
   "file, Link's house and the pause menu's four pages; the opening cutscene of a new file; and a section a region, each",
   "place in it entered and run about in for a few seconds, a child where a child goes and an adult in the temples and",
-  "on a second visit to the places that change as he grows (src/game/warp_table.ntsc-1.0.h names them). Not recorded:",
-  "night, most cutscenes, items used, enemies fought, the ending."
+  "on a second visit to the places that change as he grows (src/game/warp_table.ntsc-1.0.h names them). The menus,",
+  "Hyrule Field, the Deku Tree, the Fire, Water and Shadow Temples and Ganon's castle each have a second load that plays",
+  "with every item (shader_survey.js's gear(), equip(), night() and fight()): Link's house with the items on the buttons,",
+  "the field at night with the slingshot, boomerang and nuts, and the fights with Gohma, Volvagia, Morpha, Bongo Bongo",
+  "and Ganondorf with the bow, hookshot, hammer, bombs, arrows and Din's Fire. The 20 descriptions a long play of the",
+  "page (2026-10-18) missed there are in those sections, put there by hand; its fight with Phantom Ganon and the",
+  "shooting gallery drew nothing the list lacks. Not recorded: most cutscenes, the ending, the other minigames."
  ],
  "load": [
   [
@@ -67,6 +72,31 @@
     [
      "shot",
      "menus.png"
+    ]
+   ]
+  },
+  {
+   "name": "menus",
+   "steps": [
+    [
+     "evalFile",
+     "shader_survey.js"
+    ],
+    [
+     "eval",
+     "play()"
+    ],
+    [
+     "eval",
+     "gear(false) + ' ' + night(true)"
+    ],
+    [
+     "wait",
+     5000
+    ],
+    [
+     "eval",
+     "walk(4000)"
     ]
    ]
   },
@@ -230,6 +260,43 @@
    ]
   },
   {
+   "name": "dekutree",
+   "steps": [
+    [
+     "evalFile",
+     "shader_survey.js"
+    ],
+    [
+     "keep",
+     false
+    ],
+    [
+     "eval",
+     "play()"
+    ],
+    [
+     "keep",
+     true
+    ],
+    [
+     "eval",
+     "gear(false)"
+    ],
+    [
+     "eval",
+     "warp(0x40F, 1)"
+    ],
+    [
+     "eval",
+     "skip(4)"
+    ],
+    [
+     "eval",
+     "fight(33000, 'aim')"
+    ]
+   ]
+  },
+  {
    "name": "lostwoods",
    "steps": [
     [
@@ -389,6 +456,47 @@
     [
      "shot",
      "field.png"
+    ]
+   ]
+  },
+  {
+   "name": "field",
+   "steps": [
+    [
+     "evalFile",
+     "shader_survey.js"
+    ],
+    [
+     "keep",
+     false
+    ],
+    [
+     "eval",
+     "play()"
+    ],
+    [
+     "keep",
+     true
+    ],
+    [
+     "eval",
+     "gear(false) + ' ' + night(true)"
+    ],
+    [
+     "eval",
+     "warp(0x0CD, 1)"
+    ],
+    [
+     "eval",
+     "night(true)"
+    ],
+    [
+     "wait",
+     2000
+    ],
+    [
+     "eval",
+     "fight(33000, 'aim')"
     ]
    ]
   },
@@ -822,6 +930,51 @@
    ]
   },
   {
+   "name": "shadowtemple",
+   "steps": [
+    [
+     "evalFile",
+     "shader_survey.js"
+    ],
+    [
+     "keep",
+     false
+    ],
+    [
+     "eval",
+     "play()"
+    ],
+    [
+     "keep",
+     true
+    ],
+    [
+     "eval",
+     "gear(true)"
+    ],
+    [
+     "eval",
+     "warp(0x413, 0)"
+    ],
+    [
+     "eval",
+     "equip(0x0F, 0x03, 0x04)"
+    ],
+    [
+     "eval",
+     "skip(4)"
+    ],
+    [
+     "eval",
+     "fight(12000, 'tap')"
+    ],
+    [
+     "eval",
+     "fight(18000, 'aim')"
+    ]
+   ]
+  },
+  {
    "name": "mountain",
    "steps": [
     [
@@ -973,6 +1126,47 @@
     [
      "shot",
      "firetemple.png"
+    ]
+   ]
+  },
+  {
+   "name": "firetemple",
+   "steps": [
+    [
+     "evalFile",
+     "shader_survey.js"
+    ],
+    [
+     "keep",
+     false
+    ],
+    [
+     "eval",
+     "play()"
+    ],
+    [
+     "keep",
+     true
+    ],
+    [
+     "eval",
+     "gear(true)"
+    ],
+    [
+     "eval",
+     "warp(0x305, 0)"
+    ],
+    [
+     "eval",
+     "equip(0x11, 0x02, 0x05)"
+    ],
+    [
+     "eval",
+     "skip(4)"
+    ],
+    [
+     "eval",
+     "fight(33000, 'tap')"
     ]
    ]
   },
@@ -1222,6 +1416,47 @@
    ]
   },
   {
+   "name": "watertemple",
+   "steps": [
+    [
+     "evalFile",
+     "shader_survey.js"
+    ],
+    [
+     "keep",
+     false
+    ],
+    [
+     "eval",
+     "play()"
+    ],
+    [
+     "keep",
+     true
+    ],
+    [
+     "eval",
+     "gear(true)"
+    ],
+    [
+     "eval",
+     "warp(0x417, 0)"
+    ],
+    [
+     "eval",
+     "equip(0x0A, 0x03, 0x0C)"
+    ],
+    [
+     "eval",
+     "skip(4)"
+    ],
+    [
+     "eval",
+     "fight(30000, 'aim')"
+    ]
+   ]
+  },
+  {
    "name": "gerudo",
    "steps": [
     [
@@ -1445,6 +1680,47 @@
     [
      "shot",
      "ganon.png"
+    ]
+   ]
+  },
+  {
+   "name": "ganon",
+   "steps": [
+    [
+     "evalFile",
+     "shader_survey.js"
+    ],
+    [
+     "keep",
+     false
+    ],
+    [
+     "eval",
+     "play()"
+    ],
+    [
+     "keep",
+     true
+    ],
+    [
+     "eval",
+     "gear(true)"
+    ],
+    [
+     "eval",
+     "warp(0x41F, 0)"
+    ],
+    [
+     "eval",
+     "equip(0x12, 0x03, 0x0A)"
+    ],
+    [
+     "eval",
+     "skip(15)"
+    ],
+    [
+     "eval",
+     "fight(33000, 'aim')"
     ]
    ]
   },

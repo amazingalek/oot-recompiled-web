@@ -10,8 +10,13 @@
 # launcher, the logos and the title screen waiting for Start. Then the menus: the file select, name entry for a new
 # file, Link's house and the pause menu's four pages; the opening cutscene of a new file; and a section a region, each
 # place in it entered and run about in for a few seconds, a child where a child goes and an adult in the temples and
-# on a second visit to the places that change as he grows (src/game/warp_table.ntsc-1.0.h names them). Not recorded:
-# night, most cutscenes, items used, enemies fought, the ending.
+# on a second visit to the places that change as he grows (src/game/warp_table.ntsc-1.0.h names them). The menus,
+# Hyrule Field, the Deku Tree, the Fire, Water and Shadow Temples and Ganon's castle each have a second load that plays
+# with every item (shader_survey.js's gear(), equip(), night() and fight()): Link's house with the items on the buttons,
+# the field at night with the slingshot, boomerang and nuts, and the fights with Gohma, Volvagia, Morpha, Bongo Bongo
+# and Ganondorf with the bow, hookshot, hammer, bombs, arrows and Din's Fire. The 20 descriptions a long play of the
+# page (2026-10-18) missed there are in those sections, put there by hand; its fight with Phantom Ganon and the
+# shooting gallery drew nothing the list lacks. Not recorded: most cutscenes, the ending, the other minigames.
 # The firetemple section was recorded by a run of its own (--only firetemple), its first having missed Start at the
 # title, and put in its place.
 0c192078 00182c10 fc167e60 35fcff7e 088a000e
@@ -115,6 +120,8 @@ c8112078 0018ac10 fc127e03 fffffdf8 0ccb540e
 00504240 00080c10 fc121824 ff33ffff 0ccb540e
 00504240 00088c10 fc121824 ff33ffff 0ccb540e
 00504240 00080c10 fc119623 ff2fffff 0ccb540e
+0c184240 00182c10 fcffadff fffd9238 0ccf540e
+00504241 00002c30 fc30fe61 55fef77b 04cb540b
 section intro
 00504341 00002c30 fcffffff fffdf6fb 0800000b
 c8113078 00182c10 fc127e03 fffff3f8 0b33320a
@@ -268,6 +275,7 @@ c8112078 00182c10 fc121603 fffffff8 088a000e
 c8112078 00182c10 fc129603 fffffff8 099b980e
 c8112078 00182c10 fc1197ff fffffe38 0912880e
 0c193078 00182c10 fc129603 fffffff8 0ccbfe0e
+0c184b50 00182c10 fc30b3ff 5ffefe38 088a000a
 section lostwoods
 00504341 00002c30 fcffffff fffdf6fb 0800000b
 c8112078 00182c10 fcffffff fffdf638 0800000e
@@ -363,6 +371,14 @@ c8104a50 00182c10 fc127e05 fffff3f8 0b33320a
 c8112078 0018ac10 fc127e03 fffffdf8 099b100e
 c8104dd8 00182c10 fc127e03 fffff3f8 0b33ba0e
 c8112d58 0018ac10 fc127e03 fffffdf8 0ccb540e
+c8112078 00182c10 fc127e03 fffffdf8 0b33320a
+0c193078 00182c10 fc12fe03 fffff3f8 0ccb540e
+00504341 00002c30 fcffffff fffdf6fb 0800000a
+c8113078 00182c10 fc127e03 fffff3f8 0b33ba0a
+005049d8 00082c10 fcffffff fffe793c 0800000a
+0c184b50 00182c10 fcffffff fffe7238 088a000a
+c8112078 00182c10 fc1218c1 f0c7fe00 0caf4a0e
+00504b50 00082cd0 fc30b261 5566ff7f 0ccb540e
 section market
 c8113078 00182c10 fc127e03 fffffdf8 0b33320e
 c8112078 00182c10 fc127e03 fffffdf8 0c42cc0e
@@ -642,6 +658,7 @@ c8113078 00182c10 fc127e03 fffffdf8 088a000a
 c8112078 00182c10 fc127e03 fffffdf8 0912880e
 c8112078 00182c10 fc11ffff fffffc38 0aaaaa0e
 c8113078 00182c10 fc127e03 fffff3f8 0ccbfe0e
+00504365 00002c30 fc119623 ff2fffff 0803fe0b
 section mountain
 c81049d8 00182c10 fc127e03 fffff3f8 0ccb540e
 c8113078 00182c10 fc127e03 fffffdf8 0b33320e
@@ -776,6 +793,10 @@ c81049d8 00182c10 fc30ffff 5ffef238 099b980a
 00504241 00002c30 fc119623 ff2fffff 0b33320b
 00504241 00002c30 fc119623 ff2fffff 0333320b
 00504241 00002c30 fcff97ff ff2dfeff 0ccb540b
+c8112078 00182c10 fc127e03 fffff3f8 088a000e
+c8112078 00182c10 fc127e03 fffff3f8 0aaaaa0e
+0c184b50 00182c10 fc30b3ff 5ffefe38 088a000a
+c8113078 00182c10 fc61ffff fffcf238 0aaaaa0e
 section zora
 c8112078 0018ac10 fc127e03 fffffdf8 0bba440e
 c8112078 0018ac10 fc127e03 fffffdf8 099b100e
@@ -963,6 +984,10 @@ c8113078 00182c10 fc127e03 fffff3f8 0ccbfe0e
 00504241 00002c30 fc119623 ff2fffff 0b33320b
 00504241 00002c30 fc119623 ff2fffff 0333320b
 00504240 00002c30 fc309661 552eff7f 0ccb540b
+c8112078 0018ac10 fc11ffff fffffc38 088a000e
+c8113078 00182c10 fc11ffff fffff238 0aaaaa0a
+005041c8 00082c10 fc119623 ff2fffff 0ccb540a
+0c184b50 00182c10 fc171660 35fcff78 0bba440a
 section gerudo
 c8112078 0018ac10 fc127e03 fffffdf8 0912880e
 0c1849d8 00182c10 fc262a04 1f1093ff 0bbe440a
@@ -1195,6 +1220,7 @@ c8113078 00182c10 fc127e03 fffff3f8 0ccbfe0e
 c81049d8 00182c10 fc127e03 fffff3f8 0ccb540e
 c8113078 00182c10 fc267e05 1ffcfdf8 088e000e
 00504b50 00082cd0 fc30b261 5566ff7f 0803540e
+0c1849d8 00182c10 fc167e60 350cf37f 0ccb540a
 section fountains
 c8113078 00182c10 fc127e60 fffff3f8 0ccb540a
 c8112078 00182c10 fc127e60 fffff3f8 0ccb540a
