@@ -20,6 +20,10 @@
 //   than one side; look(ms) holds C-up (first person) and pans; pause() opens the pause menu, turns its four pages
 //   with R and closes it.
 // - state() gives the game mode (0 play, 1 title, 2 file select), the save's entrance and Link's age.
+// - Outside play (a game mode other than 0) warp() and the steps that press keys (walk, look, pause, skip, fight) do
+//   nothing and give false at once. After a play() that never loaded a file, a warp asked at the file select was
+//   taken the moment a file loaded, and walk()'s presses drove the file select's menus, for minutes: the path of a
+//   laptop's run that crashed, which no player takes.
 // - For what only playing draws (night, items in use, a boss's fight): gear(adult) gives the save every item, its
 //   ammo, magic, 20 hearts, the Master Sword and Hylian Shield for an adult (the Kokiri Sword and Deku Shield for a
 //   child) and C buttons for the age (an adult's bow, hookshot and bombs, a child's slingshot, boomerang and nuts);
@@ -72,6 +76,7 @@
   // (150 ms was missed at times while the ubershader drew a recording's attract demo slowly).
   const press = async (name, ms = 300) => { send('keydown', keys[name]); await sleep(ms); send('keyup', keys[name]); };
   window.state = () => ({ mode: r32(GAME_MODE), entrance: r32(ENTRANCE), age: r32(AGE) });
+  const inPlay = () => r32(GAME_MODE) === 0;
 
   window.play = async (intro = false) => {
     const end = Date.now() + 120000;
@@ -120,7 +125,7 @@
     const end = Date.now() + 60000;
     let asked = 0;
     while (r32(ENTRANCE) !== entrance) {
-      if (Date.now() > end) return false;
+      if (Date.now() > end || !inPlay()) return false;
       if (Date.now() - asked > 3000) {
         w32(CUTSCENE, 0);
         w16(NEXT_CUTSCENE, NO_CUTSCENE);
@@ -135,6 +140,7 @@
   };
 
   window.walk = async (ms) => {
+    if (!inPlay()) return false;
     const end = Date.now() + ms;
     let turn = 'LEFT';
     while (Date.now() < end) {
@@ -151,6 +157,7 @@
   };
 
   window.look = async (ms) => {
+    if (!inPlay()) return false;
     await press('CUP');
     await sleep(800);
     send('keydown', keys.LEFT);
@@ -161,6 +168,7 @@
   };
 
   window.pause = async () => {
+    if (!inPlay()) return false;
     await press('START');
     await sleep(2500);
     for (let page = 0; page < 4; page++) {
@@ -207,12 +215,14 @@
     return on ? 'night' : 'day';
   };
   window.skip = async (n) => {
+    if (!inPlay()) return false;
     for (let i = 0; i < n; i++) {
       await press('A');
       await sleep(700);
     }
   };
   window.fight = async (ms, kind = 'aim') => {
+    if (!inPlay()) return false;
     const end = Date.now() + ms;
     const cs = ['CLEFT', 'CDOWN', 'CRIGHT'];
     for (let i = 0; Date.now() < end; i++) {
