@@ -19,7 +19,8 @@
 // - walk(ms) runs Link about with the stick, turning both ways, and rolls, so the camera sees the place from more
 //   than one side; look(ms) holds C-up (first person) and pans; pause() opens the pause menu, turns its four pages
 //   with R and closes it.
-// - state() gives the game mode (0 play, 1 title, 2 file select), the save's entrance and Link's age.
+// - state() gives the game mode (0 play, 1 title, 2 file select), the save's entrance, Link's age and the game's frame
+//   count.
 // - Outside play (a game mode other than 0) warp() and the steps that press keys (walk, look, pause, skip, fight) do
 //   nothing and give false at once. After a play() that never loaded a file, a warp asked at the file select was
 //   taken the moment a file loaded, and walk()'s presses drove the file select's menus, for minutes: the path of a
@@ -75,7 +76,25 @@
   // Held for 300 ms: the game reads the keyboard's state once a frame, 20 a second at most, and misses a shorter press
   // (150 ms was missed at times while the ubershader drew a recording's attract demo slowly).
   const press = async (name, ms = 300) => { send('keydown', keys[name]); await sleep(ms); send('keyup', keys[name]); };
-  window.state = () => ({ mode: r32(GAME_MODE), entrance: r32(ENTRANCE), age: r32(AGE) });
+  // The game's own count of its frames (60 a second at the file select, 20 in play): the GameState's frames at +0x9C,
+  // the state D_8012D1F8 points into in every game mode. gameFrames waits for n of them, until a new state starts its
+  // count again, or ms of wall time at most.
+  const frames = () => r32(r32(FIRST_INPUT) - 0x14 + 0x9C);
+  const gameFrames = async (n, ms = 30000) => {
+    const from = frames(), end = Date.now() + ms;
+    while (frames() - from < n && frames() >= from && Date.now() < end) await sleep(20);
+  };
+  // A press held until the game has counted 3 frames, then n frames for the menu to take it. In wall time, a press made
+  // while the game waited for its shaders (Firefox builds the file select's as it opens, 1.4-1.9 s on a desktop and
+  // longer on a laptop) was never seen, every press after it went to another menu than meant, and no file was made.
+  const pressFrames = async (name, n) => {
+    send('keydown', keys[name]);
+    await gameFrames(3);
+    await sleep(50);
+    send('keyup', keys[name]);
+    await gameFrames(n);
+  };
+  window.state = () => ({ mode: r32(GAME_MODE), entrance: r32(ENTRANCE), age: r32(AGE), frames: frames() });
   const inPlay = () => r32(GAME_MODE) === 0;
 
   window.play = async (intro = false) => {
@@ -104,13 +123,13 @@
       await press('START');
       await sleep(1500);
     }
-    await sleep(2000);
+    await gameFrames(120);
     // A on File 1; on a new profile, the letter A, END and A make the file, and A on it then Yes load it. Each press
-    // waits out the menu's animation; a file that exists loads at the second press and the rest are never sent.
+    // waits out the menu's animation on the game's clock; a file that exists loads at the second press and the rest
+    // are never sent.
     for (const name of ['A', 'A', 'START', 'A', 'A', 'A']) {
       if (r32(GAME_MODE) !== 2) break;
-      await press(name);
-      await sleep(2500);
+      await pressFrames(name, 150);
     }
     while (r32(GAME_MODE) !== 0) {
       if (Date.now() > end) { watching = false; return false; }
