@@ -1,107 +1,25 @@
 {
- "page": "OoTRecompiled.html",
- "load": [
-  [
-   "wait",
-   5000
+  "header": ["The page's plan for N64Recomp-browser's tools/play_page.mjs, its regular play of 2-3 minutes with every timeout",
+             "counted: the launcher, Load ROM on a new profile once the page has its shader list (Chrome builds the whole list",
+             "behind the launcher, and says when it is done; Firefox builds none there, and says so as the launcher comes up), Play",
+             "(pressed until the game has booted), the logos and the title. tools/shader_survey.js's play(), a need, then loads File",
+             "1 from the file select as a player does (making it on a new profile, its opening cutscene cleared), Link runs about",
+             "his house, and the pause menu's four pages are turned there. A picture is taken of the title and of the house.",
+             "tools/play_plan_extended.json goes on to three more places by the survey's warp(), for when a longer play is needed."],
+  "page": "OoTRecompiled.html",
+  "load": [["until","RT64: all \\d+ prebuilt shaders built|the game waiting for the \\d+ of section",60000],["wait",3000]],
+  "setup": [["rom","Enter","Enter",13],["wait",3000]],
+  "start": [["pressUntil","Enter","Enter",13,100,5000,"(() => { try { n64r(0x80000000); return true; } catch { return false; } })()",20000],["wait",3000]],
+  "play": [
+    ["eval","(() => { window.planWaits = {}; window.later = (label, p) => { window.planWaits[label] = p; const say = (text) => setTimeout(() => console.log('[plan] ' + label + ': ' + text), 1000); p.then((v) => say(JSON.stringify(v)), (e) => say(String(e))); return label + ' started'; }; return 'later()'; })()"],
+    ["evalFile","shader_survey.js"],
+    ["shot","title.png"],
+    ["eval","later(\"play\", play())"],
+    ["until","\\[plan\\] play: ",70000],
+    ["need","window.planWaits[\"play\"].then((s) => s && s.mode === 0 && s)"],
+    ["eval","walk(5000)"],
+    ["shot","house.png"],
+    ["eval","pause()"],
+    ["eval","state()"]
   ]
- ],
- "setup": [
-  [
-   "rom",
-   "Enter",
-   "Enter",
-   13
-  ],
-  [
-   "wait",
-   3000
-  ]
- ],
- "start": [
-  [
-   "key",
-   "Enter",
-   "Enter",
-   13
-  ],
-  [
-   "wait",
-   20000
-  ]
- ],
- "play": [
-  [
-   "evalFile",
-   "shader_survey.js"
-  ],
-  [
-   "shot",
-   "title.png"
-  ],
-  [
-   "need",
-   "play()"
-  ],
-  [
-   "eval",
-   "walk(5000)"
-  ],
-  [
-   "shot",
-   "house.png"
-  ],
-  [
-   "eval",
-   "warp(0x0EE, 1)"
-  ],
-  [
-   "eval",
-   "walk(15000)"
-  ],
-  [
-   "shot",
-   "kokiri.png"
-  ],
-  [
-   "eval",
-   "pause()"
-  ],
-  [
-   "eval",
-   "warp(0x0CD, 1)"
-  ],
-  [
-   "eval",
-   "walk(15000)"
-  ],
-  [
-   "shot",
-   "field.png"
-  ],
-  [
-   "eval",
-   "warp(0x0B1, 1)"
-  ],
-  [
-   "eval",
-   "walk(10000)"
-  ],
-  [
-   "shot",
-   "market.png"
-  ],
-  [
-   "eval",
-   "warp(0x169, 0)"
-  ],
-  [
-   "eval",
-   "walk(15000)"
-  ],
-  [
-   "shot",
-   "foresttemple.png"
-  ]
- ]
 }

@@ -73,7 +73,9 @@ game first draws there, the game waiting.
 drives the page in headless Chrome through `tools/shader_plan.json`, a page load a section, and `tools/shader_survey.js`
 loads File 1 (making it on a new profile), skips the new file's opening cutscene, and warps to each place of a region
 through `Module._oot_web_warp` (`web/survey.cpp`, which asks for the warp the debug menu's Warp rows ask for).
-`tools/play_plan.json` is what N64Recomp-browser's `tools/play_page.mjs` plays to measure the page.
+`tools/play_plan.json` is what N64Recomp-browser's `tools/play_page.mjs` plays to measure the page, in 2-3 minutes;
+`tools/play_plan_extended.json` goes on to Lake Hylia, the graveyard and the Desert Colossus, for when a longer play is
+needed, in at most 5 minutes.
 
 ## How it plays
 

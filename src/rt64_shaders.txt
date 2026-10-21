@@ -19,6 +19,9 @@
 # shooting gallery drew nothing the list lacks. Not recorded: most cutscenes, the ending, the other minigames.
 # The firetemple section was recorded by a run of its own (--only firetemple), its first having missed Start at the
 # title, and put in its place.
+# The last two descriptions in the kakariko section and the last in the dodongo and gerudo sections are ones Firefox
+# plays missed in the graveyard as an adult, Dodongo's Cavern as a child and Gerudo Valley as an adult, put there by
+# hand too.
 0c192078 00182c10 fc167e60 35fcff7e 088a000e
 0c184341 00102c30 fc267e60 350cf37f 00ce140b
 00504341 00002cf0 fcffffff fffdf6fb 0800000b
@@ -626,6 +629,8 @@ c8112078 00182c10 fc127e03 fffffbf8 0aaaaa0e
 c8112078 00182c10 fc127e03 ff0ff3ff 099b980e
 c8112078 00182c10 fc127e03 ff0ff3ff 0ccbfe0e
 0c192078 00182c10 fc129a03 ff0fffff 0ccbfe0e
+c8103478 00182c10 fc119604 ff5bfff8 099b100e
+c8103478 00182c10 fc119604 ff5bfff8 0ccb540e
 section well
 00504341 00002c30 fcffffff fffdf6fb 0800000b
 c8112078 00182c10 fc267e04 1ffcfdf8 088e000a
@@ -770,6 +775,7 @@ c8112078 00182c10 fc127e03 ff0ff3ff 0aaaaa0e
 c8112078 00182c10 fc127e03 ff0ff3ff 0b33ba0e
 c8112078 00182c10 fc127e03 ff0ff3ff 0a22220e
 c8112078 00182c10 fc127e03 ff0ff3ff 0ccbfe0e
+0c1849d8 00182c10 fc30b3ff 5ffeda38 0ccbfe0a
 section firetemple
 00504341 00002c30 fcffffff fffdf6fb 0800000b
 c8112078 0018ac10 fc127e03 fffffdf8 0a22220e
@@ -1058,6 +1064,7 @@ c8112078 00182c10 fc127e60 fffff3f8 0803760a
 c8113078 00182c10 fcfffe60 fffcf3f8 0ccb540a
 0c1849d8 00182c10 fc167e60 35fcf378 088a000a
 0c1849d8 00182c10 fc11ffff fffff238 0ccb540a
+c8104a50 00182c10 fc127e03 fffff3f8 0b33320e
 section spirittemple
 00504341 00002c30 fcffffff fffdf6fb 0800000b
 c8112078 0018ac10 fc127e03 fffffdf8 0a22220e
