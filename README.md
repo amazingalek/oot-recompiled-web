@@ -1,8 +1,8 @@
 # OoT: Recompiled
 
 > [!WARNING]
-> **This is amazingalek/oot-recompiled-web, a fork, not OoT: Recompiled.** Its `main` branch is upstream's built into
-> a web page (WebGPU, through [N64Recomp-browser](https://github.com/amazingalek/N64Recomp-browser)), and everything on
+> **This is n64hub/oot-recompiled-web, a fork, not OoT: Recompiled.** Its `main` branch is upstream's built into
+> a web page (WebGPU, through [N64Recomp-browser](https://github.com/n64hub/N64Recomp-browser)), and everything on
 > it past upstream's commits was written by AI (Claude). It is not made, endorsed or supported by OoT: Recompiled's
 > author: nothing here is offered upstream, and please don't take issues with this fork to them. Building the page:
 > [BUILDING.md](BUILDING.md).
@@ -10,7 +10,7 @@
 > This port is here to build out and test N64Recomp-browser's web support on another game than the one it was written
 > for: what it turns up is fixed there where it can be, so every recomp's page gets the fix.
 
-**Play it in the browser: https://amazingalek.github.io/oot-recompiled-web/**, with your own ROM (Ocarina of Time,
+**Play it in the browser: https://n64hub.com/ocarina-of-time/**, with your own ROM (Ocarina of Time,
 NTSC-U 1.0), picked in the launcher and kept in the browser. It needs WebGPU (Chrome or Edge 113 and up; Firefox 141
 and up on Windows). The page is built from this branch and published with N64Recomp-browser's `tools/publish_page.sh`,
 so it can be a commit or two behind.

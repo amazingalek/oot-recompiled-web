@@ -4,7 +4,7 @@ This fork's `main` is OoT: Recompiled built with [Emscripten](https://emscripten
 `OoTRecompiled.html`, that draws through WebGPU. The desktop build is upstream's, unchanged (the README says how);
 everything for the page is behind `__EMSCRIPTEN__` or in `web/` and `tools/`. `lib/rt64`, `lib/N64ModernRuntime` and
 `lib/RmlUi` are upstream's own submodules, at its commits, and
-[N64Recomp-browser](https://github.com/amazingalek/N64Recomp-browser) (`lib/N64Recomp-browser`) patches the checkouts
+[N64Recomp-browser](https://github.com/n64hub/N64Recomp-browser) (`lib/N64Recomp-browser`) patches the checkouts
 of rt64 and the runtime with the web support. `web/page.cmake`'s header says what else differs on a page.
 
 ## What it needs
@@ -26,7 +26,7 @@ patches and its `decompress_baserom.py` for the ROM.
 ## Building
 
 ```bash
-git clone --recurse-submodules https://github.com/amazingalek/oot-recompiled-web
+git clone --recurse-submodules https://github.com/n64hub/oot-recompiled-web
 cd oot-recompiled-web
 tools/build_web.sh path/to/your/rom.z64
 ```
@@ -80,8 +80,8 @@ needed, in at most 5 minutes.
 ## How it plays
 
 How the page plays in Chrome and Firefox, run by run, is recorded in N64Recomp-browser's
-[plays.jsonl](https://github.com/amazingalek/N64Recomp-browser/blob/main/plays.jsonl) and its
-[games table](https://github.com/amazingalek/N64Recomp-browser#games).
+[plays.jsonl](https://github.com/n64hub/N64Recomp-browser/blob/main/plays.jsonl) and its
+[games table](https://github.com/n64hub/N64Recomp-browser#games).
 
 `tools/shader_survey.js` waits for the file select's hand-over on a timer. It once waited in a loop of messages to
 itself, ~10,000 tasks a second on the page's thread, which starved the tasks that carry the device thread's WebGPU work
