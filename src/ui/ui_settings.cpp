@@ -32,6 +32,11 @@ namespace {
     // state in it.
     bool g_update_choice_made = false;
     bool g_rom_choice_made = false;
+#ifdef __EMSCRIPTEN__
+    // Whether this file has had its aspect moved to the page's widescreen default (load_settings). Written beside
+    // the questions, so a page moves a file once and a 4:3 chosen after that stays.
+    bool g_page_widescreen_moved = false;
+#endif
 
 
     struct Row {
@@ -1126,8 +1131,15 @@ namespace oot::ui {
         d.resolution = 0;       // the console's own 320 by 240
 #endif
         d.downsampling = 0;
+#ifdef __EMSCRIPTEN__
+        // On a page, widescreen: the picture expanded to the canvas's shape and the interface within 16:9, as the
+        // other recomps' pages open.
+        d.aspect = 1;
+        d.hud_ratio = 1;
+#else
         d.aspect = 0;           // the console's 4:3
         d.hud_ratio = 0;        // the interface where the console put it
+#endif
         d.antialiasing = 0;     // none, as the console had none
         d.render_distance = 0;  // the game's own distance
 #ifdef __EMSCRIPTEN__
@@ -1165,6 +1177,12 @@ namespace oot::ui {
                     g_rom_choice_made = as_int(value, 0) != 0;
                     continue;
                 }
+#ifdef __EMSCRIPTEN__
+                if (key == "page_widescreen_moved") {
+                    g_page_widescreen_moved = as_int(value, 0) != 0;
+                    continue;
+                }
+#endif
                 for (int row = 0; row < ROW_COUNT; ++row) {
                     if (key == ROWS[row].key) {
                         set_row(loaded, row, as_int(value, get_row(loaded, row)));
@@ -1175,6 +1193,21 @@ namespace oot::ui {
                 }
             }
             clamp(loaded);
+#ifdef __EMSCRIPTEN__
+            // A PAGE'S SAVED 4:3 MOVES TO WIDESCREEN ONCE. Pages opened in the console's 4:3 until widescreen became
+            // their default, and every settings write saves every row, so a file from then holds 4:3 whether the
+            // player chose it or not. Moved once, with the interface's Original beside it; the next write records
+            // the move, and a 4:3 chosen after it stays.
+            if (!g_page_widescreen_moved) {
+                if (loaded.aspect == 0) {
+                    loaded.aspect = 1;
+                    if (loaded.hud_ratio == 0) {
+                        loaded.hud_ratio = 1;
+                    }
+                }
+                g_page_widescreen_moved = true;
+            }
+#endif
             // THE RECORDER AND THE COUNTER ARE READ BACK LIKE EVERY OTHER ROW (the user,
             // 2026-09-24: "make both the fps counter and the recorder options retain setting
             // values cross session like before"). From 2026-09-23 to today both were forced Off at
@@ -1228,6 +1261,11 @@ namespace oot::ui {
         // different fact from what the answer turned out to be.
         file << "updates_asked = " << (g_update_choice_made ? 1 : 0) << "\n";
         file << "rom_copy_asked = " << (g_rom_choice_made ? 1 : 0) << "\n";
+#ifdef __EMSCRIPTEN__
+        // A new file starts in widescreen, so it has nothing to move either.
+        g_page_widescreen_moved = true;
+        file << "page_widescreen_moved = 1\n";
+#endif
         return file.good();
     }
 

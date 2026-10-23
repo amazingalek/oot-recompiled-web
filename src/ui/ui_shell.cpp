@@ -4020,8 +4020,8 @@ namespace {
         const oot::ui::Settings d = oot::ui::machine_defaults();
         oot::ui::apply(d);
 #ifdef __EMSCRIPTEN__
-        // A page starts at the canvas's size and the display's rate (ui_settings.cpp's machine_defaults).
-        g_launch_note = "Starting at the window's size and the display's frame rate. Change any of them";
+        // A page starts at the canvas's size and shape and the display's rate (ui_settings.cpp's machine_defaults).
+        g_launch_note = "Starting at the window's size and shape and the display's frame rate. Change any of them";
 #else
         g_launch_note = "Starting as the console played it (" + oot::ui::render::device_name() + "). Raise any of them";
 #endif
