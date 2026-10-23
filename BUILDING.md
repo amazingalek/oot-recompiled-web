@@ -59,7 +59,11 @@ and settings. N64Recomp-browser's `tools/publish_page.sh` publishes the build di
   with the HUD within 16:9, and Frame rate at Match the display: the game's 20 frames a second, RT64 interpolating
   between them up to the display's rate. The desktop build starts with the console's picture, 320x240 in 4:3 at 20
   (`machine_defaults` in `src/ui/ui_settings.cpp`). A page's settings file saved in 4:3 moves to Expand once, the
-  HUD's Original with it (`page_widescreen_moved` in the file), so a 4:3 chosen after that stays.
+  HUD's Original with it (`page_widescreen_moved` in the file), so a 4:3 chosen after that stays. A prerendered room
+  (Link's house, the castle courtyard, most shop and house interiors) draws in the console's 4:3 with bars at the sides,
+  the HUD with it, whatever those rows say, on the desktop too (`patches/prerender_aspect.c`): its backdrop is a 320x240
+  picture, and widened it would no longer match where the 3D drawn over it stands. So the play plan's house shot is 4:3
+  and its title shot fills the canvas.
 
 ## The shader list
 
